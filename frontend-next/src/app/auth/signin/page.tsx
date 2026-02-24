@@ -82,8 +82,8 @@ const SignInPage = () => {
               <Image
                 src="/images/cover/logo-conatel-medico.jpeg"
                 alt="Servicio Médico CONATEL"
-                width={256}
-                height={164}
+                width={250}
+                height={160}
                 className="h-41 w-auto object-contain"
                 priority
               />
