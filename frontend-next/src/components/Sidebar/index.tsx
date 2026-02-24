@@ -63,21 +63,21 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
   return (
     <aside
       ref={sidebar}
-      className={`absolute left-0 top-0 z-9999 flex h-screen w-72.5 flex-col overflow-y-hidden bg-black duration-300 ease-linear dark:bg-boxdark lg:static lg:translate-x-0 ${
+          className={`absolute left-0 top-0 z-9999 flex h-screen w-72.5 flex-col overflow-y-hidden bg-gradient-to-b from-[#1b4fa3] via-[#0f2f73] to-[#02050d] duration-300 ease-linear dark:bg-boxdark lg:static lg:translate-x-0 ${
         sidebarOpen ? 'translate-x-0' : '-translate-x-full'
       }`}
     >
       {/* <!-- SIDEBAR HEADER --> */}
-      <div className="flex items-center justify-between gap-2 px-6 py-5.5 lg:py-6.5">
-        <Link href="/">
-          {/* <Image
-            src="/images/cover/logo-conatel-medico.jpeg"
-            alt="Logo"
-            width={160}
-            height={40}
-            className="h-auto w-32"
+      <div className="flex items-center justify-between gap-2 px-5 pb-2 pt-5 lg:pt-6">
+        <Link href="/" className="mx-auto flex items-center justify-center">
+          <Image
+            src="/images/cover/conatel.webp"
+            alt="Logo Servicio Médico Conatel"
+            width={168}
+            height={48}
+            className="h-auto w-36 drop-shadow-[0_6px_18px_rgba(13,148,136,0.45)]"
             priority
-          /> */}
+          />
         </Link>
 
         <button
@@ -106,10 +106,10 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
 
       <div className="no-scrollbar flex flex-col overflow-y-auto duration-300 ease-linear">
         {/* <!-- Sidebar Menu --> */}
-        <nav className="mt-5 py-4 px-4 lg:mt-9 lg:px-6">
+        <nav className="mt-1 py-4 px-4 lg:mt-4 lg:px-5">
           {/* <!-- Menu Group --> */}
           <div>
-            <h3 className="mb-4 ml-4 text-sm font-semibold text-bodydark2">
+            <h3 className="mb-3 text-center text-xs font-semibold uppercase tracking-[0.3em] text-bodydark2">
               MENU
             </h3>
 
