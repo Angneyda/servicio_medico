@@ -63,13 +63,16 @@ MIDDLEWARE = [
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
+        'users.authentication.UsuariosJWTAuthentication',
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     )
 }
 
 CORS_ALLOWED_ORIGINS = [
-    "http://localhost:5173",  # React Default
+    "http://localhost:5173",
     "http://127.0.0.1:5173",
+    "http://localhost:3000",
+    "http://127.0.0.1:3000",
 ]
 
 ROOT_URLCONF = 'sismed_backend.urls'

@@ -36,6 +36,14 @@ class Usuarios(models.Model):
         managed = False
         db_table = '"users"."usuarios"'
 
+    @property
+    def is_authenticated(self) -> bool:  # pragma: no cover - property used by DRF
+        return True
+
+    @property
+    def is_anonymous(self) -> bool:  # pragma: no cover
+        return False
+
 class Familiares(models.Model):
     id = models.AutoField(primary_key=True)
     id_persona = models.ForeignKey(Personas, models.DO_NOTHING, db_column='id_persona', related_name='familiares_persona', null=True, blank=True)

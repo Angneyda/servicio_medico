@@ -25,6 +25,7 @@ from rest_framework_simplejwt.views import (
 
 from medical_staff.views import MedicalStaffViewSet
 from medical_history.views import MedicalHistoryViewSet
+from users.views import UsuariosLoginView
 
 router = DefaultRouter()
 router.register(r'medical_staff', MedicalStaffViewSet)
@@ -33,6 +34,7 @@ router.register(r'medical_history', MedicalHistoryViewSet)
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/', include(router.urls)),
+    path('api/auth/login/', UsuariosLoginView.as_view(), name='usuarios_login'),
     path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
 ]
