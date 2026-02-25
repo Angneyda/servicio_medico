@@ -63,7 +63,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
   return (
     <aside
       ref={sidebar}
-          className={`absolute left-0 top-0 z-9999 flex h-screen w-72.5 flex-col overflow-y-hidden bg-gradient-to-b from-[#1b4fa3] via-[#0f2f73] to-[#02050d] duration-300 ease-linear dark:bg-boxdark lg:static lg:translate-x-0 ${
+          className={`absolute left-0 top-0 z-9999 flex h-screen w-72.5 flex-col overflow-y-hidden bg-gradient-to-b from-[#1b4fa3] via-[#0f2f73] to-[#0a0a13] duration-300 ease-linear dark:bg-boxdark lg:static lg:translate-x-0 ${
         sidebarOpen ? 'translate-x-0' : '-translate-x-full'
       }`}
     >
@@ -109,7 +109,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
         <nav className="mt-1 py-4 px-4 lg:mt-4 lg:px-5">
           {/* <!-- Menu Group --> */}
           <div>
-            <h3 className="mb-3 text-center text-xs font-semibold uppercase tracking-[0.3em] text-bodydark2">
+            <h3 className="mb-4 text-center text-md font-extrabold uppercase tracking-[0.25em] text-white/90">
               MENU
             </h3>
 

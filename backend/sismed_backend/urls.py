@@ -18,14 +18,10 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
-from rest_framework_simplejwt.views import (
-    TokenObtainPairView,
-    TokenRefreshView,
-)
 
 from medical_staff.views import MedicalStaffViewSet
 from medical_history.views import MedicalHistoryViewSet
-from users.views import UsuariosLoginView
+from users.views import UsuariosLoginView, CookieTokenRefreshView, LogoutView, MeView
 
 router = DefaultRouter()
 router.register(r'medical_staff', MedicalStaffViewSet)
@@ -35,7 +31,8 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/', include(router.urls)),
     path('api/auth/login/', UsuariosLoginView.as_view(), name='usuarios_login'),
-    path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
-    path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+    path('api/auth/refresh/', CookieTokenRefreshView.as_view(), name='token_refresh_cookie'),
+    path('api/auth/logout/', LogoutView.as_view(), name='logout'),
+    path('api/auth/me/', MeView.as_view(), name='auth_me'),
 ]
 

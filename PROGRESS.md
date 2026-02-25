@@ -1,6 +1,6 @@
 # Registro de Progreso del Proyecto SISMED
 
-**Última Actualización:** 23 de Febrero de 2026
+**Última Actualización:** 25 de Febrero de 2026
 
 ## 1. Refactorización de Arquitectura (Backend)
 Se ha completado la migración de un modelo monolítico a una arquitectura modular basada en aplicaciones Django, alineada con esquemas de base de datos PostgreSQL.
@@ -25,23 +25,28 @@ Se ha iniciado la construcción de la API REST para la comunicación con el Fron
 
 - [x] **Dependencias**: Instalados `djangorestframework`, `django-cors-headers` y `djangorestframework-simplejwt`.
 - [x] **Configuración**: 
-    - Habilitado CORS para permitir peticiones desde `localhost:5173`.
-    - Configurada autenticación JWT por defecto.
+    - Habilitado CORS y `Allow-Credentials` para envío de cookies desde `localhost:3000`/`5173`.
+    - Configuración de Simple JWT con rotación de refresh y blacklist.
+    - Autenticación por cookie httpOnly con respaldo Bearer.
 - [x] **Endpoints Creados**:
-    - `/api/token/`: Obtención de par de tokens (Access/Refresh).
-    - `/api/token/refresh/`: Renovación de tokens.
+    - `/api/auth/login/`: Login con cookies httpOnly (sin exponer tokens en JSON).
+    - `/api/auth/refresh/`: Refresh por cookie con rotación.
+    - `/api/auth/logout/`: Logout con blacklist y borrado de cookies.
+    - `/api/auth/me/`: Perfil del usuario autenticado.
     - `/api/medical_staff/`: CRUD para doctores y personal médico.
     - `/api/medical_history/`: CRUD para historias médicas.
 - [x] **Serializers y Vistas**: Implementados ViewSets básicos para `Doctores` e `HistoriaMedica` utilizando sus nombres reales.
+- [x] **Migraciones**: Aplicadas migraciones de `token_blacklist`.
 
-## 3. Desarrollo del Frontend (React + Vite)
-Se ha integrado la plantilla **TailAdmin (React + TypeScript)** y configurado el sistema base.
+## 3. Desarrollo del Frontend (Next.js)
+Se ha integrado la plantilla **TailAdmin (Next.js + TypeScript)** y configurado el sistema base.
 
 - [x] **Estructura**: Organizado el proyecto en carpetas `services`, `context`, `hooks`, `components`, `pages`.
-- [x] **Autenticación (JWT)**:
-    - Implementado `AuthContext` para el manejo global de sesión y estado.
-    - Configurado `axios` con interceptores para inyectar headers de autenticación; se programó la lógica de *refresh token* automático.
-    - Creado componente `ProtectedRoute` para proteger rutas privadas y prevenir accesos no autorizados.
+- [x] **Autenticación (JWT con cookies)**:
+    - `AuthContext` actualizado para cargar usuario desde `/api/auth/me/`.
+    - `axios` configurado con `withCredentials: true` y refresh automático vía `/api/auth/refresh/`.
+    - Eliminado almacenamiento de tokens en `localStorage`.
+    - Login actualizado para usar cookies httpOnly.
 - [x] **Login y Navegación**:
     - Pantalla de Login (`SignIn.tsx`) funcional conectada con la API de Django.
     - Redirección automática al Dashboard tras el login.
@@ -56,10 +61,17 @@ Se ha integrado la plantilla **TailAdmin (React + TypeScript)** y configurado el
 - Se configuró `.gitignore` para excluir archivos innecesarios (`env/`, `pycache`, bd local).
 - Se creó una rama de desarrollo `feature/frontend-init` para trabajar el frontend sin afectar `main`.
 
-## 5. Próximos Pasos Pendientes
+## 5. Seguridad Aplicada (Docs y Checklist)
+- [x] Documento de justificación guardado en `docs/medidas-seguridad-sismed.md`.
+- [x] Checklist de verificación y pruebas con `curl` agregadas.
+
+## 6. Próximos Pasos Pendientes
 - [ ] **Consumo de Datos**: Crear páginas específicas ("Staff Médico", "Historias") en el frontend que usen los hooks creados para mostrar datos reales.
 - [ ] **Formularios de Creación**: Implementar formularios para agregar pacientes y citas médicas.
 - [ ] **Roles y Permisos**: Configurar permisos basados en grupos de Django para diferenciar interfaces entre Admin, Doctores y Pacientes.
+- [ ] **HTTPS en Producción**: Configurar certificados reales y activar `Secure` en cookies.
+- [ ] **Revisión de CORS**: Ajustar orígenes permitidos según dominio final del frontend.
 
 ---
 *Este archivo sirve como punto de control para el desarrollo del proyecto.*
+

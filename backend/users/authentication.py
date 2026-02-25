@@ -1,10 +1,22 @@
+from django.conf import settings
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework_simplejwt.exceptions import InvalidToken
 
 from .models import Usuarios
 
 
-class UsuariosJWTAuthentication(JWTAuthentication):
+class CookieJWTAuthentication(JWTAuthentication):
+    """Authenticate using JWT tokens stored in cookies, with Bearer fallback."""
+
+    def authenticate(self, request):
+        cookie_token = request.COOKIES.get(settings.AUTH_COOKIE_NAME)
+        if cookie_token:
+            validated_token = self.get_validated_token(cookie_token)
+            return self.get_user(validated_token), validated_token
+        return super().authenticate(request)
+
+
+class UsuariosJWTAuthentication(CookieJWTAuthentication):
     """Allow JWT tokens issued for Usuarios table to authenticate via DRF."""
 
     def get_user(self, validated_token):

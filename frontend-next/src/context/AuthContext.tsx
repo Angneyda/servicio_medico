@@ -1,7 +1,7 @@
 "use client";
 
-import { jwtDecode } from 'jwt-decode';
 import { createContext, ReactNode, useContext, useEffect, useState } from 'react';
+import { usePathname } from 'next/navigation';
 
 import api from '../services/api';
 
@@ -13,17 +13,11 @@ interface User {
   // Añade otros campos según tu payload
 }
 
-interface DecodedToken {
-  id?: number;
-  user_id?: number;
-  username?: string;
-  email?: string;
-}
 
 interface AuthContextType {
   user: User | null;
   loading: boolean;
-  login: (token: string, refresh: string) => void;
+  login: (user: User) => void;
   logout: () => void;
 }
 
@@ -32,46 +26,40 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export const AuthProvider = ({children}: {children: ReactNode}) => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const pathname = usePathname();
 
-  // Al cargar la app, verificar tokens y usuario
+  // Al cargar la app, verificar el usuario desde la cookie
   useEffect(() => {
-    const token = localStorage.getItem('access_token');
-    if (token) {
-      try {
-        const decoded = jwtDecode<DecodedToken>(token);
-        setUser({
-          id: decoded.user_id ?? decoded.id ?? 0,
-          username: decoded.username ?? 'Usuario',
-          email: decoded.email,
-        });
-      } catch (error) {
-        console.error('Token invalido', error);
-        localStorage.removeItem('access_token');
-        localStorage.removeItem('refresh_token');
-      }
+    if (pathname?.startsWith('/auth')) {
+      setLoading(false);
+      return;
     }
-    setLoading(false);
-  }, []);
+    const loadUser = async () => {
+      try {
+        const response = await api.get('auth/me/');
+        setUser(response.data);
+      } catch (error) {
+        setUser(null);
+      } finally {
+        setLoading(false);
+      }
+    };
+    loadUser();
+  }, [pathname]);
 
-  const login = (accessToken: string, refreshToken: string) => {
-    localStorage.setItem('access_token', accessToken);
-    localStorage.setItem('refresh_token', refreshToken);
-    const decoded = jwtDecode<DecodedToken>(accessToken);
-    setUser({
-      id: decoded.user_id ?? decoded.id ?? 0,
-      username: decoded.username ?? 'Usuario',
-      email: decoded.email,
-    });
-    // Configurar header por defecto
-    api.defaults.headers.common['Authorization'] = `Bearer ${accessToken}`;
+  const login = (userData: User) => {
+    setUser(userData);
   };
 
-  const logout = () => {
-    localStorage.removeItem('access_token');
-    localStorage.removeItem('refresh_token');
-    setUser(null);
-    delete api.defaults.headers.common['Authorization'];
-    window.location.href = '/auth/signin';
+  const logout = async () => {
+    try {
+      await api.post('auth/logout/');
+    } catch (error) {
+      // Ignorar errores de logout
+    } finally {
+      setUser(null);
+      window.location.href = '/auth/signin';
+    }
   };
 
   return (

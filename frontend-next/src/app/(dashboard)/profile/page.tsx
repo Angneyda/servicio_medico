@@ -1,30 +1,44 @@
+// Indica que este archivo es un componente del lado del cliente en Next.js
 "use client";
 
+// Importa el componente de imagen optimizada de Next.js
 import Image from 'next/image';
+// Importa el componente de enlaces de Next.js para navegación interna
 import Link from 'next/link';
+// Importa el componente de migas de pan personalizado
 import Breadcrumb from '@/components/Breadcrumbs/Breadcrumb';
 
+
+// Componente principal de la página de perfil
 const ProfilePage = () => {
+  // Renderiza el contenido del perfil
   return (
     <>
+      {/* Miga de pan para navegación */}
       <Breadcrumb pageName="Profile" />
 
+      {/* Contenedor principal del perfil con estilos y sombra */}
       <div className="overflow-hidden rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
+        {/* Sección de portada del perfil */}
         <div className="relative z-20 h-35 md:h-65">
+          {/* Imagen de portada */}
           <Image
-            src="/images/cover/cover-01.png"
-            alt="profile cover"
-            fill
-            className="rounded-tl-sm rounded-tr-sm object-cover object-center"
-            priority
+            src="/images/cover/cover-01.png" // Ruta de la imagen de portada
+            alt="profile cover" // Texto alternativo
+            fill // Hace que la imagen ocupe todo el contenedor
+            className="rounded-tl-sm rounded-tr-sm object-cover object-center" // Estilos de la imagen
+            priority // Prioriza la carga de la imagen
           />
+          {/* Botón para editar la portada */}
           <div className="absolute bottom-1 right-1 z-10 xsm:bottom-4 xsm:right-4">
             <label
               htmlFor="cover"
               className="flex cursor-pointer items-center justify-center gap-2 rounded bg-primary py-1 px-2 text-sm font-medium text-white hover:bg-opacity-90 xsm:px-4"
             >
+              {/* Input oculto para subir nueva portada */}
               <input type="file" name="cover" id="cover" className="sr-only" />
               <span>
+                {/* Icono de cámara */}
                 <svg
                   className="fill-current"
                   width="14"
@@ -47,23 +61,27 @@ const ProfilePage = () => {
                   />
                 </svg>
               </span>
-              <span>Edit</span>
+              <span>Edit</span> {/* Texto del botón */}
             </label>
           </div>
         </div>
+        {/* Sección de información del usuario */}
         <div className="px-4 pb-6 text-center lg:pb-8 xl:pb-11.5">
+          {/* Imagen de perfil en círculo */}
           <div className="relative z-30 mx-auto -mt-22 h-30 w-full max-w-30 rounded-full bg-white/20 p-1 backdrop-blur sm:h-44 sm:max-w-44 sm:p-3">
             <div className="relative drop-shadow-2">
               <Image
-                src="/images/user/user-06.png"
-                alt="profile"
-                width={176}
-                height={176}
+                src="/images/user/user-06.png" // Ruta de la imagen de perfil
+                alt="profile" // Texto alternativo
+                width={176} // Ancho de la imagen
+                height={176} // Alto de la imagen
               />
+              {/* Botón para cambiar la foto de perfil */}
               <label
                 htmlFor="profile"
                 className="absolute bottom-0 right-0 flex h-8.5 w-8.5 cursor-pointer items-center justify-center rounded-full bg-primary text-white hover:bg-opacity-90 sm:bottom-2 sm:right-2"
               >
+                {/* Icono de cámara */}
                 <svg
                   className="fill-current"
                   width="14"
@@ -85,6 +103,7 @@ const ProfilePage = () => {
                     fill=""
                   />
                 </svg>
+                {/* Input oculto para subir nueva foto de perfil */}
                 <input
                   type="file"
                   name="profile"
@@ -94,24 +113,29 @@ const ProfilePage = () => {
               </label>
             </div>
           </div>
+          {/* Nombre y ocupación del usuario */}
           <div className="mt-4">
             <h3 className="mb-1.5 text-2xl font-semibold text-black dark:text-white">
-              Danish Heilium
+              Xavier Dhamer (Come hombres) {/* Nombre del usuario */}
             </h3>
-            <p className="font-medium">Ui/Ux Designer</p>
+            <p className="font-medium">Ui/Ux Designer</p> {/* Ocupación */}
+            {/* Estadísticas del usuario */}
             <div className="mx-auto mt-4.5 mb-5.5 grid max-w-94 grid-cols-3 rounded-md border border-stroke py-2.5 shadow-1 dark:border-strokedark dark:bg-[#37404F]">
+              {/* Número de posts */}
               <div className="flex flex-col items-center justify-center gap-1 border-r border-stroke px-4 dark:border-strokedark xsm:flex-row">
                 <span className="font-semibold text-black dark:text-white">
                   259
                 </span>
                 <span className="text-sm">Posts</span>
               </div>
+              {/* Número de seguidores */}
               <div className="flex flex-col items-center justify-center gap-1 border-r border-stroke px-4 dark:border-strokedark xsm:flex-row">
                 <span className="font-semibold text-black dark:text-white">
                   129K
                 </span>
                 <span className="text-sm">Followers</span>
               </div>
+              {/* Número de seguidos */}
               <div className="flex flex-col items-center justify-center gap-1 px-4 xsm:flex-row">
                 <span className="font-semibold text-black dark:text-white">
                   2K
@@ -120,6 +144,7 @@ const ProfilePage = () => {
               </div>
             </div>
 
+            {/* Sección "Sobre mí" */}
             <div className="mx-auto max-w-180">
               <h4 className="font-semibold text-black dark:text-white">
                 About Me
@@ -133,11 +158,13 @@ const ProfilePage = () => {
               </p>
             </div>
 
+            {/* Redes sociales */}
             <div className="mt-6.5">
               <h4 className="mb-3.5 font-medium text-black dark:text-white">
                 Follow me on
               </h4>
               <div className="flex items-center justify-center gap-3.5">
+                {/* Icono de red social 1 */}
                 <Link
                   href="#"
                   className="hover:text-primary"
@@ -164,6 +191,7 @@ const ProfilePage = () => {
                     </defs>
                   </svg>
                 </Link>
+                {/* Icono de red social 2 */}
                 <Link
                   href="#"
                   className="hover:text-primary"
@@ -195,6 +223,7 @@ const ProfilePage = () => {
                     </defs>
                   </svg>
                 </Link>
+                {/* Icono de red social 3 */}
                 <Link
                   href="#"
                   className="hover:text-primary"
@@ -235,4 +264,5 @@ const ProfilePage = () => {
   );
 };
 
+// Exporta el componente para que pueda ser usado en otras partes de la app
 export default ProfilePage;

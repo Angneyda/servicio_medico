@@ -52,7 +52,9 @@ const SignInPage = () => {
     setLoading(true);
     try {
       const response = await api.post('auth/login/', { username, password });
-      login(response.data.access, response.data.refresh);
+      if (response.data?.user) {
+        login(response.data.user);
+      }
       router.replace('/dashboard');
     } catch (err: unknown) {
       console.error(err);
@@ -112,6 +114,7 @@ const SignInPage = () => {
               fill
               className="object-cover"
               priority
+              sizes="(min-width: 768px) 50vw, 100vw"
               style={{
                 opacity: isRegisterMode ? 1 : 0,
                 transform: isRegisterMode ? 'scale(1)' : 'scale(1.04)',
@@ -123,6 +126,9 @@ const SignInPage = () => {
               alt="Profesional de la salud ingresando"
               fill
               className="object-cover"
+              sizes="(min-width: 768px) 50vw, 100vw"
+              loading="eager"
+              priority
               style={{
                 opacity: isRegisterMode ? 0 : 1,
                 transform: isRegisterMode ? 'scale(1.04)' : 'scale(1)',
@@ -362,7 +368,7 @@ const SignInPage = () => {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full py-3 rounded-lg bg-[#4169E1] text-white font-semibold text-base shadow hover:bg-[#41749a] transition disabled:opacity-60"
+                className="w-full py-3 rounded-lg bg-[#4169E1] text-white font-semibold text-base shadow transition disabled:opacity-60 hover:bg-emerald-500 hover:text-white hover:border-emerald-500"
               >
                 {loading ? 'Ingresando...' : 'Iniciar Sesión'}
               </button>
@@ -374,7 +380,7 @@ const SignInPage = () => {
               <button
                 type="button"
                 onClick={() => setIsRegisterMode(true)}
-                className="w-full py-3 rounded-lg bg-[#4169E1] text-white font-semibold text-base shadow hover:bg-[#41749a] transition"
+                className="w-full py-3 rounded-lg bg-[#4169E1] text-white font-semibold text-base shadow transition hover:bg-emerald-500 hover:text-white hover:border-emerald-500"
               >
                 Nuevo Registro
               </button>
