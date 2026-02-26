@@ -1,7 +1,13 @@
 import axios from 'axios';
 
+const apiBaseUrl =
+  process.env.NEXT_PUBLIC_API_BASE_URL ??
+  (typeof window !== 'undefined'
+    ? `http://${window.location.hostname}:8000/api/`
+    : 'http://localhost:8000/api/');
+
 const api = axios.create({
-  baseURL: 'http://localhost:8000/api/', // Ajusta esto si tu backend corre en otro puerto
+  baseURL: apiBaseUrl,
   headers: {
     'Content-Type': 'application/json',
   },
