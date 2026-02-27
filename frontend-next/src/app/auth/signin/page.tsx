@@ -51,7 +51,7 @@ const SignInPage = () => {
     setError(null);
     setLoading(true);
     try {
-      const response = await api.post('auth/login/', { username, password });
+      const response = await api.post('usuarios/login/', { username, password });
       if (response.data?.user) {
         login(response.data.user);
       }

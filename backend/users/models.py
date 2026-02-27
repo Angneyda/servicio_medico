@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.db import models
 
 class Personas(models.Model):
@@ -19,6 +20,22 @@ class Personas(models.Model):
     class Meta:
         managed = False
         db_table = '"users"."personas"'
+
+
+class UserPersona(models.Model):
+    user = models.OneToOneField(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name='persona_link',
+    )
+    persona = models.OneToOneField(
+        Personas,
+        on_delete=models.CASCADE,
+        related_name='user_link',
+    )
+
+    class Meta:
+        db_table = '"users"."user_personas"'
 
 class Usuarios(models.Model):
     id = models.AutoField(primary_key=True)

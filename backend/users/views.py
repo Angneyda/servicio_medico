@@ -3,11 +3,10 @@
 from django.conf import settings
 # Importa la función para autenticar usuarios de Django
 from django.contrib.auth import authenticate
-# Importa la función para verificar contraseñas hasheadas
-from django.contrib.auth.hashers import check_password
+# Importa utilidades de DB
 # Importa utilidades y clases de DRF para manejar respuestas y permisos
 from rest_framework import status
-from rest_framework.permissions import AllowAny, IsAuthenticated
+from rest_framework.permissions import AllowAny, IsAuthenticated, IsAdminUser
 from rest_framework.response import Response
 from rest_framework.views import APIView
 # Importa serializers y tokens JWT para autenticación
@@ -15,8 +14,37 @@ from rest_framework_simplejwt.serializers import TokenRefreshSerializer
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.exceptions import TokenError
 
-# Importa el modelo de usuarios personalizado
-from .models import Usuarios
+# Importa serializers y modelos
+from .models import UserPersona
+from .serializers import UserPersonaCreateSerializer, UserPersonaDetailSerializer, UserRegisterSerializer
+# --- Aprendizaje: Vista para registro de usuario ---
+# Esta vista permite registrar un usuario y su persona asociada desde la API.
+from rest_framework import status
+from rest_framework.response import Response
+from rest_framework.views import APIView
+from rest_framework.permissions import AllowAny, IsAdminUser
+
+
+# --- Aprendizaje: Vista para registro de usuario ---
+# Esta vista permite registrar un usuario y su persona asociada desde la API.
+class UsuarioRegistroView(APIView):
+    # --- Aprendizaje: Solo administradores pueden registrar usuarios ---
+    permission_classes = [AllowAny]  # [IsAdminUser] Solo administradores autenticados pueden acceder
+
+    def post(self, request):
+        # --- Aprendizaje: Recibe datos del usuario y persona ---
+        serializer = UserRegisterSerializer(data=request.data)  # Instancia el serializer con los datos recibidos
+
+        if serializer.is_valid():  # Valida los datos enviados
+            user = serializer.save()  # Guarda el usuario y la persona en la base de datos
+            return Response(
+                {'detail': 'Usuario registrado correctamente.'},
+                status=status.HTTP_201_CREATED
+            )  # Devuelve mensaje de éxito
+
+        # Si hay errores de validación, los devuelve al usuario
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
 
 # Vista para el login de usuarios
 class UsuariosLoginView(APIView):
@@ -36,15 +64,7 @@ class UsuariosLoginView(APIView):
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
-        # Busca el usuario en el modelo personalizado y verifica que tenga contraseña
-        usuario = (
-            Usuarios.objects.filter(username=username).exclude(contrasena__isnull=True).first()
-        )
-        # Si existe y la contraseña coincide, retorna los tokens y datos del usuario
-        if usuario and self._password_matches(password, usuario.contrasena):
-            return self._build_token_response(usuario, source='usuarios')
-
-        # Si no, intenta autenticar con el sistema estándar de Django
+        # Autentica con el sistema estándar de Django
         django_user = authenticate(username=username, password=password)
         if django_user is not None:
             return self._build_token_response(django_user, source='django')
@@ -54,18 +74,6 @@ class UsuariosLoginView(APIView):
             {'detail': 'Credenciales inválidas.'},
             status=status.HTTP_401_UNAUTHORIZED,
         )
-
-    # Método auxiliar para comparar contraseñas (soporta hasheadas y texto plano)
-    def _password_matches(self, raw_password: str, stored_password: str) -> bool:
-        if not stored_password:
-            return False
-        # Algoritmos de hash soportados
-        hashed_algorithms = ('pbkdf2_', 'argon2', 'bcrypt', 'scrypt')
-        # Si la contraseña almacenada está hasheada, usa check_password
-        if stored_password.startswith(hashed_algorithms):
-            return check_password(raw_password, stored_password)
-        # Si no, compara como texto plano
-        return stored_password == raw_password
 
     # Método auxiliar para construir la respuesta con los tokens y datos del usuario
     def _build_token_response(self, user, source: str):
@@ -122,6 +130,17 @@ class UsuariosLoginView(APIView):
             samesite=settings.AUTH_COOKIE_SAMESITE,
             path='/',
         )
+
+
+class UserPersonaCreateView(APIView):
+    permission_classes = [IsAdminUser]
+
+    def post(self, request):
+        serializer = UserPersonaCreateSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        user_persona = serializer.save()
+        output = UserPersonaDetailSerializer(user_persona)
+        return Response(output.data, status=status.HTTP_201_CREATED)
 
 
 # Vista para refrescar tokens usando cookies

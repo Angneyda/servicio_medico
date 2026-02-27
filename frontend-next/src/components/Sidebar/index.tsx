@@ -114,6 +114,31 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
             </h3>
 
             <ul className="mb-6 flex flex-col gap-1.5">
+              {/* <!-- Menu Item Usuarios --> */} {/* Comentario del item Usuarios */}
+              <li> {/* Contenedor del item Usuarios */}
+                <Link
+                  href="/users" /* Ruta a la pantalla de usuarios */
+                  className={
+                    'group flex items-center gap-2.5 rounded-sm px-4 py-2 font-medium text-bodydark1 duration-300 ease-in-out hover:bg-graydark dark:hover:bg-meta-4 ' +
+                    (pathname === '/users' ? 'bg-graydark dark:bg-meta-4' : '')
+                  } /* Clases del enlace */
+                >
+                  <svg
+                    className="fill-current" /* Clase del icono */
+                    width="18" /* Ancho del icono */
+                    height="18" /* Alto del icono */
+                    viewBox="0 0 24 24" /* ViewBox del icono */
+                    fill="none" /* Color de relleno */
+                    xmlns="http://www.w3.org/2000/svg" /* Namespace SVG */
+                  >
+                    <path
+                      d="M12 12c2.7614 0 5-2.2386 5-5S14.7614 2 12 2 7 4.2386 7 7s2.2386 5 5 5Zm0 2c-3.866 0-7 3.134-7 7h2c0-2.7614 2.2386-5 5-5s5 2.2386 5 5h2c0-3.866-3.134-7-7-7Z" /* Path del icono */
+                      fill="" /* Hereda el fill */
+                    />
+                  </svg>
+                  {'Usuarios'} {/* Texto del menú */}
+                </Link>
+              </li>
               {/* <!-- Menu Item Dashboard --> */}
               <SidebarLinkGroup
                 activeCondition={

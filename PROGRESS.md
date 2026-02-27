@@ -1,6 +1,6 @@
 # Registro de Progreso del Proyecto SISMED
 
-**Última Actualización:** 25 de Febrero de 2026
+**Última Actualización:** 26 de Febrero de 2026
 
 ## 1. Refactorización de Arquitectura (Backend)
 Se ha completado la migración de un modelo monolítico a una arquitectura modular basada en aplicaciones Django, alineada con esquemas de base de datos PostgreSQL.
@@ -37,6 +37,37 @@ Se ha iniciado la construcción de la API REST para la comunicación con el Fron
     - `/api/medical_history/`: CRUD para historias médicas.
 - [x] **Serializers y Vistas**: Implementados ViewSets básicos para `Doctores` e `HistoriaMedica` utilizando sus nombres reales.
 - [x] **Migraciones**: Aplicadas migraciones de `token_blacklist`.
+- [x] **Usuarios + Personas**: Implementada relación 1:1 entre usuario Django y `personas` mediante tabla `user_personas`.
+- [x] **Endpoint creación**: Agregado `POST /api/users/` para crear usuario y persona en una sola operación.
+
+### [27/Feb/2026] Endpoint de Registro de Usuario + Persona
+
+- [x] **Endpoint creado:** `POST /api/usuarios/registro/`
+    - Permite registrar un usuario y su persona asociada en una sola operación.
+    - Solo accesible para administradores autenticados.
+- [x] **Datos esperados:**
+```json
+{
+  "username": "usuario_prueba",
+  "email": "correo@ejemplo.com",
+  "password": "clave_segura",
+  "cedula": "12345678",
+  "nombre": "Juan",
+  "apellido": "Pérez",
+  "sexo": "M",
+  "fecha_nacimiento": "1990-01-01",
+  "correo": "correo@ejemplo.com",
+  "telefono": "04141234567",
+  "tipo_persona": 1,
+  "estatus": 1
+}
+```
+- [x] **Validaciones importantes:**
+    - El campo `estatus` debe ser un número (IntegerField en el modelo).
+    - Si se envía texto en `estatus`, retorna error 500.
+    - Si el username ya existe, retorna error de validación.
+- [x] **Prueba exitosa:**
+    - Probado en Postman, respuesta: `{ "detail": "Usuario registrado correctamente." }`
 
 ## 3. Desarrollo del Frontend (Next.js)
 Se ha integrado la plantilla **TailAdmin (Next.js + TypeScript)** y configurado el sistema base.
@@ -55,6 +86,7 @@ Se ha integrado la plantilla **TailAdmin (Next.js + TypeScript)** y configurado 
     - Sidebar y Header configurados dinámicamente.
     - Creados hooks personalizados `useMedicalStaff` y `useMedicalHistory`.
     - Creado componente base `MedicalHistoryTable` (pendiente de probar con datos).
+- [x] **Pantalla Usuarios**: Creada pantalla `/users` para crear usuario+persona desde el frontend.
 
 ## 4. Gestión del Proyecto (Git)
 - Se inicializó el repositorio Git y se conectó con GitLab.
@@ -66,6 +98,8 @@ Se ha integrado la plantilla **TailAdmin (Next.js + TypeScript)** y configurado 
 - [x] Checklist de verificación y pruebas con `curl` agregadas.
 
 ## 6. Próximos Pasos Pendientes
+- [ ] **Listado Usuarios**: Mostrar usuarios con su persona vinculada en la pantalla de Usuarios.
+- [ ] **Roles y Permisos (RBAC)**: Crear pantallas para gestión de Roles y Permisos (Groups/Permissions de Django).
 - [ ] **Consumo de Datos**: Crear páginas específicas ("Staff Médico", "Historias") en el frontend que usen los hooks creados para mostrar datos reales.
 - [ ] **Formularios de Creación**: Implementar formularios para agregar pacientes y citas médicas.
 - [ ] **Roles y Permisos**: Configurar permisos basados en grupos de Django para diferenciar interfaces entre Admin, Doctores y Pacientes.
