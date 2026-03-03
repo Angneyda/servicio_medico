@@ -13,6 +13,8 @@ from .views import (
     LogoutView,                  # Vista para logout
     MeView,                      # Vista para obtener datos del usuario autenticado
     UserPersonaCreateView,       # Vista para crear usuario-persona (ejemplo adicional)
+    UsuarioListaView,          # Vista para listar usuarios con su persona y rol (solo para administradores)
+    
 )
 
 # Lista de rutas específicas de la app users
@@ -34,5 +36,8 @@ urlpatterns = [
 
     # POST /api/usuarios/crear/ -> Crear usuario-persona (ejemplo adicional)
     path('crear/', UserPersonaCreateView.as_view(), name='user_persona_create'),
+    
+    # GET /api/usuarios/listar/ -> Lista usuarios con persona y rol
+    path('listar/', UsuarioListaView.as_view(), name='usuarios_listar'),
 ]
 

@@ -1,6 +1,19 @@
 from django.conf import settings
 from django.db import models
 
+TIPO_PERSONA_CHOICES = (
+    (1, 'Personal'),
+    (2, 'Jubilado'),
+    (3, 'Familiar'),
+    (4, 'Cortesía'),
+)
+
+ESTATUS_CHOICES = (
+    (1, 'Activo'),
+    (2, 'Inactivo'),
+)
+
+
 class Personas(models.Model):
     id = models.AutoField(primary_key=True)
     cedula = models.CharField(max_length=255, null=True, blank=True, unique=True)
@@ -10,8 +23,16 @@ class Personas(models.Model):
     fecha_nacimiento = models.DateField(null=True, blank=True)
     correo = models.CharField(max_length=255, null=True, blank=True)
     telefono = models.CharField(max_length=255, null=True, blank=True)
-    tipo_persona = models.CharField(max_length=255, null=True, blank=True)
-    estatus = models.IntegerField(null=True, blank=True)
+    tipo_persona = models.IntegerField(
+        choices=TIPO_PERSONA_CHOICES,
+        null=True,
+        blank=True,
+    )
+    estatus = models.IntegerField(
+        choices=ESTATUS_CHOICES,
+        null=True,
+        blank=True,
+    )
     id_usucreate = models.ForeignKey('users.Usuarios', models.DO_NOTHING, db_column='id_usucreate', related_name='personas_create', null=True, blank=True)
     fecha_create = models.DateTimeField(null=True, blank=True)
     id_usupdate = models.ForeignKey('users.Usuarios', models.DO_NOTHING, db_column='id_usupdate', related_name='personas_update', null=True, blank=True)

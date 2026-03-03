@@ -16,13 +16,19 @@ from rest_framework_simplejwt.exceptions import TokenError
 
 # Importa serializers y modelos
 from .models import UserPersona
-from .serializers import UserPersonaCreateSerializer, UserPersonaDetailSerializer, UserRegisterSerializer
+from .serializers import (
+    UserRegisterSerializer,
+    UserPersonaCreateSerializer,
+    UserPersonaDetailSerializer,
+    UsuarioListaSerializer,
+)
 # --- Aprendizaje: Vista para registro de usuario ---
 # Esta vista permite registrar un usuario y su persona asociada desde la API.
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.permissions import AllowAny, IsAdminUser
+from rest_framework.generics import ListAPIView
 
 
 # --- Aprendizaje: Vista para registro de usuario ---
@@ -223,4 +229,23 @@ class MeView(APIView):
                 'username': getattr(user, 'username', None) or '',
                 'tipo_usuario': getattr(user, 'tipo_usuario', None),
             }
+        )
+
+# Vista para obtener el listado de usuarios con su persona y rol (solo para administradores)
+class UsuarioListaView(ListAPIView):
+    """
+    Endpoint solo-lectura para listar usuarios con su persona y rol.
+
+    URL: GET /api/usuarios/listar/
+    """
+
+    permission_classes = [IsAdminUser]
+    serializer_class = UsuarioListaSerializer
+
+    def get_queryset(self):
+        # Optimiza las consultas cargando user y persona en la misma query
+        return (
+            UserPersona.objects
+            .select_related('user', 'persona')
+            .all()
         )

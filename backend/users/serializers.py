@@ -1,8 +1,7 @@
 from django.contrib.auth.models import User
 from django.db import transaction
 from rest_framework import serializers
-
-from .models import Personas, UserPersona
+from .models import Personas, UserPersona, TIPO_PERSONA_CHOICES, ESTATUS_CHOICES
 
 # --- Aprendizaje: Serializer para registro de usuario ---
 # Este serializer permite crear un usuario nuevo desde la API.
@@ -23,11 +22,17 @@ class UserRegisterSerializer(serializers.ModelSerializer):
     apellido = serializers.CharField(max_length=150)   # Apellido de la persona asociada.
     sexo = serializers.CharField(max_length=10)        # Sexo de la persona asociada.
     fecha_nacimiento = serializers.DateField()         # Fecha de nacimiento de la persona asociada.
-    correo = serializers.EmailField()                  # Correo de la persona asociada.
     telefono = serializers.CharField(max_length=20)    # Teléfono de la persona asociada.
-    # --- Aprendizaje: tipo_persona como IntegerField ---
-    tipo_persona = serializers.IntegerField()  # Tipo de persona como número (1=personal, 2=jubilado, etc).
-    estatus = serializers.CharField(max_length=20)     # Estatus de la persona asociada.
+    # --- Aprendizaje: tipo_persona como ChoiceField validado ---
+    tipo_persona = serializers.ChoiceField(
+        choices=TIPO_PERSONA_CHOICES,  # 1=Personal, 2=Jubilado, 3=Familiar, 4=Cortesía
+    )
+    # --- Aprendizaje: estatus como ChoiceField (1=Activo, 2=Inactivo) ---
+    estatus = serializers.ChoiceField(
+        choices=ESTATUS_CHOICES,
+        required=False,
+        allow_null=True,
+    )
 
     # --- Aprendizaje: Validación personalizada para username ---
     def validate_username(self, value):
@@ -44,7 +49,7 @@ class UserRegisterSerializer(serializers.ModelSerializer):
             'password',    # Contraseña del usuario.
             # Campos de persona
             'cedula', 'nombre', 'apellido', 'sexo', 'fecha_nacimiento',
-            'correo', 'telefono', 'tipo_persona', 'estatus'
+            'telefono', 'tipo_persona', 'estatus'
         ]
 
     def create(self, validated_data):
@@ -57,6 +62,9 @@ class UserRegisterSerializer(serializers.ModelSerializer):
             email = validated_data.get('email')    # Obtiene el correo del usuario.
             password = validated_data['password']  # Obtiene la contraseña del usuario.
             tipo_persona = validated_data['tipo_persona']  # Obtiene el tipo de persona.
+            # Estatus: si viene null o vacío, forzamos 1 (Activo)
+            raw_estatus = validated_data.get('estatus')
+            estatus = raw_estatus if raw_estatus not in (None, '') else 1
 
             # Extrae datos de persona para crear el registro asociado
             persona_data = {
@@ -65,10 +73,10 @@ class UserRegisterSerializer(serializers.ModelSerializer):
                 'apellido': validated_data['apellido'],       # Apellido
                 'sexo': validated_data['sexo'],               # Sexo
                 'fecha_nacimiento': validated_data['fecha_nacimiento'], # Fecha de nacimiento
-                'correo': validated_data['correo'],           # Correo
+                'correo': email,                             # Correo de la persona (mismo que email de usuario)
                 'telefono': validated_data['telefono'],       # Teléfono
                 'tipo_persona': tipo_persona,                 # Tipo de persona
-                'estatus': validated_data['estatus'],         # Estatus
+                'estatus': estatus,                           # Estatus (1=Activo, 2=Inactivo)
             }
 
             # Crea la persona asociada en la base de datos
@@ -94,6 +102,17 @@ class UserRegisterSerializer(serializers.ModelSerializer):
     
 
 class PersonaSerializer(serializers.ModelSerializer):
+    tipo_persona = serializers.ChoiceField(
+        choices=TIPO_PERSONA_CHOICES,
+        required=False,
+        allow_null=True,
+    )
+    estatus = serializers.ChoiceField(
+        choices=ESTATUS_CHOICES,
+        required=False,
+        allow_null=True,
+    )
+
     class Meta:
         model = Personas
         fields = [
@@ -156,3 +175,39 @@ class UserPersonaCreateSerializer(serializers.Serializer):
             user = User.objects.create_user(password=password, **validated_data)
             persona = Personas.objects.create(**persona_data)
             return UserPersona.objects.create(user=user, persona=persona)
+        
+
+class UsuarioListaSerializer(serializers.ModelSerializer):
+    """
+    Lista usuarios mostrando datos combinados de User y Personas.
+
+    Campos: id (del vínculo), username, email, cedula, nombre, apellido, rol.
+    """
+
+    username = serializers.ReadOnlyField(source='user.username')
+    email = serializers.ReadOnlyField(source='user.email')
+    cedula = serializers.ReadOnlyField(source='persona.cedula')
+    nombre = serializers.ReadOnlyField(source='persona.nombre')
+    apellido = serializers.ReadOnlyField(source='persona.apellido')
+    rol = serializers.SerializerMethodField()
+
+    class Meta:
+        model = UserPersona
+        fields = [
+            'id',
+            'username',
+            'email',
+            'cedula',
+            'nombre',
+            'apellido',
+            'rol',
+        ]
+
+    def get_rol(self, obj) -> str:
+        """
+        Devuelve el nombre del primer grupo (rol) del usuario.
+        Si no tiene grupos, devuelve cadena vacía.
+        """
+        user = obj.user
+        first_group = user.groups.first()
+        return first_group.name if first_group is not None else ''

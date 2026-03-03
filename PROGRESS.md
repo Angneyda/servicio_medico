@@ -106,6 +106,13 @@ Se ha integrado la plantilla **TailAdmin (Next.js + TypeScript)** y configurado 
 - [ ] **HTTPS en Producción**: Configurar certificados reales y activar `Secure` en cookies.
 - [ ] **Revisión de CORS**: Ajustar orígenes permitidos según dominio final del frontend.
 
+## 7. Próxima tarea frontend (pendiente)
+- [ ] **Integrar registro de usuario/persona en el frontend**
+    - Crear formulario en Next.js para enviar los datos al endpoint `/api/usuarios/registro/`.
+    - Validar campos requeridos y mostrar mensajes de error del backend.
+    - Probar flujo completo desde la interfaz web.
+    - (Iniciar el lunes)
+
 ---
 *Este archivo sirve como punto de control para el desarrollo del proyecto.*
 
