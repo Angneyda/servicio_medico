@@ -1,6 +1,6 @@
 # Registro de Progreso del Proyecto SISMED
 
-**Última Actualización:** 26 de Febrero de 2026
+**Última Actualización:** 4 de Marzo de 2026
 
 ## 1. Refactorización de Arquitectura (Backend)
 Se ha completado la migración de un modelo monolítico a una arquitectura modular basada en aplicaciones Django, alineada con esquemas de base de datos PostgreSQL.
@@ -33,6 +33,7 @@ Se ha iniciado la construcción de la API REST para la comunicación con el Fron
     - `/api/auth/refresh/`: Refresh por cookie con rotación.
     - `/api/auth/logout/`: Logout con blacklist y borrado de cookies.
     - `/api/auth/me/`: Perfil del usuario autenticado.
+    - `/api/usuarios/listar/`: Listado combinado de usuarios (User + Personas + primer Group como rol) solo para administradores.
     - `/api/medical_staff/`: CRUD para doctores y personal médico.
     - `/api/medical_history/`: CRUD para historias médicas.
 - [x] **Serializers y Vistas**: Implementados ViewSets básicos para `Doctores` e `HistoriaMedica` utilizando sus nombres reales.
@@ -69,6 +70,44 @@ Se ha iniciado la construcción de la API REST para la comunicación con el Fron
 - [x] **Prueba exitosa:**
     - Probado en Postman, respuesta: `{ "detail": "Usuario registrado correctamente." }`
 
+### [03/Mar/2026] Gestión de Usuarios (Listado + Registro desde el Frontend)
+
+- [x] **Listado de usuarios (backend):**
+    - Serializador `UsuarioListaSerializer` que combina datos de `User`, `Personas` y el primer `Group` como rol.
+    - Vista `UsuarioListaView` (`GET /api/usuarios/listar/`) protegida con `IsAdminUser` y usando `select_related` para optimizar consultas.
+- [x] **Pantalla de listado `/users` (frontend):**
+    - Hook `useUsers` que consume `/api/usuarios/listar/` y maneja estados de carga y error.
+    - Componente `UsersTable` que muestra cédula, nombre, apellido, rol y botones de acción (Editar/Borrar, aún sin lógica).
+    - Botón "Nuevo usuario" que navega a `/users/new`.
+- [x] **Formulario de nuevo usuario `/users/new`:**
+    - Formulario en Next.js que envía al endpoint `POST /api/usuarios/registro/`.
+    - Campos: `username`, `email`, `password`, `cedula`, `nombre`, `apellido`, `sexo` (select `M`/`F`), `fecha_nacimiento`, `telefono`, `tipo_persona` (1=Personal, 2=Jubilado, 3=Familiar, 4=Cortesía), `estatus` (1=Activo, 2=Inactivo).
+    - El valor de `email` se reutiliza como `Personas.correo` en el backend para evitar duplicar inputs.
+    - `tipo_persona` y `estatus` se validan con `ChoiceField` y se convierten a enteros antes de guardar.
+- [x] **Flujo de éxito y feedback al usuario:**
+    - Tras un registro exitoso, el frontend redirige a `/users?created=1`.
+    - La pantalla `/users` detecta ese parámetro y muestra un mensaje verde "Usuario registrado correctamente", con botón para cerrarlo y auto-ocultado tras unos segundos.
+
+### [04/Mar/2026] Gestión de Usuarios (Edición + Feedback de actualización)
+
+- [x] **Endpoint de detalle/edición (backend):**
+    - Creado endpoint protegido `GET/PUT /api/usuarios/editar/<id>/` que trabaja sobre la relación `UserPersona`.
+    - Implementado `UsuarioDetalleUpdateSerializer` que combina datos de `User` y `Personas` en un solo JSON plano (username, email, cédula, nombre, apellido, sexo, fecha_nacimiento, teléfono, tipo_persona, estatus).
+    - La actualización sincroniza `User.email` y `Personas.correo` usando un único campo de correo proveniente del frontend.
+    - Restringido a administradores (`IsAdminUser`) y probado vía Postman (login, GET de detalle, PUT de actualización y verificación con nuevo GET).
+- [x] **Flujo de edición de usuarios (frontend):**
+    - Botón **Editar** en la tabla de usuarios ahora navega a `/users/[id]/edit` usando el `id` de `UserPersona`.
+    - Página dinámica `/users/[id]/edit` implementada como componente cliente que:
+        - Obtiene el `id` de la URL con `useParams` (App Router de Next.js).
+        - Carga los datos desde `/api/usuarios/editar/<id>/` y rellena un formulario similar al de "Nuevo usuario" (sin password).
+        - Envía los cambios con `PUT /api/usuarios/editar/<id>/` y, si todo va bien, redirige a `/users?updated=1`.
+- [x] **Mensaje de éxito al actualizar:**
+    - La pantalla `/users` ahora detecta tanto `?created=1` como `?updated=1`.
+    - Muestra un mensaje verde:
+        - "Usuario registrado correctamente." cuando `created=1`.
+        - "Usuario actualizado correctamente." cuando `updated=1`.
+    - El mensaje se puede cerrar manualmente y se oculta automáticamente a los pocos segundos.
+
 ## 3. Desarrollo del Frontend (Next.js)
 Se ha integrado la plantilla **TailAdmin (Next.js + TypeScript)** y configurado el sistema base.
 
@@ -98,7 +137,8 @@ Se ha integrado la plantilla **TailAdmin (Next.js + TypeScript)** y configurado 
 - [x] Checklist de verificación y pruebas con `curl` agregadas.
 
 ## 6. Próximos Pasos Pendientes
-- [ ] **Listado Usuarios**: Mostrar usuarios con su persona vinculada en la pantalla de Usuarios.
+- [x] **Listado Usuarios**: Mostrar usuarios con su persona vinculada en la pantalla de Usuarios (completado para administradores; pendiente solo implementar acción de Borrar).
+- [ ] **Borrado de usuarios**: Implementar endpoint y lógica para eliminar usuarios/personas desde la API y conectar el botón "Borrar" en el frontend.
 - [ ] **Roles y Permisos (RBAC)**: Crear pantallas para gestión de Roles y Permisos (Groups/Permissions de Django).
 - [ ] **Consumo de Datos**: Crear páginas específicas ("Staff Médico", "Historias") en el frontend que usen los hooks creados para mostrar datos reales.
 - [ ] **Formularios de Creación**: Implementar formularios para agregar pacientes y citas médicas.
@@ -106,12 +146,11 @@ Se ha integrado la plantilla **TailAdmin (Next.js + TypeScript)** y configurado 
 - [ ] **HTTPS en Producción**: Configurar certificados reales y activar `Secure` en cookies.
 - [ ] **Revisión de CORS**: Ajustar orígenes permitidos según dominio final del frontend.
 
-## 7. Próxima tarea frontend (pendiente)
-- [ ] **Integrar registro de usuario/persona en el frontend**
-    - Crear formulario en Next.js para enviar los datos al endpoint `/api/usuarios/registro/`.
-    - Validar campos requeridos y mostrar mensajes de error del backend.
-    - Probar flujo completo desde la interfaz web.
-    - (Iniciar el lunes)
+## 7. Estado de la integración de registro (frontend)
+- [x] **Integrar registro de usuario/persona en el frontend**
+    - Formulario en Next.js que envía los datos al endpoint `/api/usuarios/registro/`.
+    - Validación de campos requeridos en el cliente y exposición de mensajes de error del backend cuando ocurren.
+    - Flujo completo probado: creación desde la interfaz web, redirección al listado y visualización del nuevo usuario.
 
 ---
 *Este archivo sirve como punto de control para el desarrollo del proyecto.*

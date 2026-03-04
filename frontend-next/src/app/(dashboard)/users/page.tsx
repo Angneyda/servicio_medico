@@ -10,25 +10,40 @@ const UsersPage = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
   const created = searchParams.get('created');
-  const [showSuccess, setShowSuccess] = useState(created === '1');
+  const updated = searchParams.get('updated');
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const { users, loading, error } = useUsers();
 
   useEffect(() => {
-    if (!showSuccess) return;
-    const timer = setTimeout(() => setShowSuccess(false), 5000);
+    if (created === '1') {
+      setSuccessMessage('Usuario registrado correctamente.');
+      return;
+    }
+
+    if (updated === '1') {
+      setSuccessMessage('Usuario actualizado correctamente.');
+      return;
+    }
+
+    setSuccessMessage(null);
+  }, [created, updated]);
+
+  useEffect(() => {
+    if (!successMessage) return;
+    const timer = setTimeout(() => setSuccessMessage(null), 5000);
     return () => clearTimeout(timer);
-  }, [showSuccess]);
+  }, [successMessage]);
 
   return (
     <>
       <Breadcrumb pageName="Usuarios" />
 
-      {showSuccess && (
+      {successMessage && (
         <div className="mb-4 flex items-center justify-between rounded border border-emerald-300 bg-emerald-50 p-3 text-sm font-semibold text-emerald-700 dark:border-emerald-500 dark:bg-emerald-500/10 dark:text-emerald-200">
-          <span>Usuario registrado correctamente.</span>
+          <span>{successMessage}</span>
           <button
             type="button"
-            onClick={() => setShowSuccess(false)}
+            onClick={() => setSuccessMessage(null)}
             className="ml-4 text-xs font-bold text-emerald-700 underline hover:text-emerald-900 dark:text-emerald-200 dark:hover:text-emerald-50"
           >
             Cerrar

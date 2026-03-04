@@ -13,8 +13,8 @@ from .views import (
     LogoutView,                  # Vista para logout
     MeView,                      # Vista para obtener datos del usuario autenticado
     UserPersonaCreateView,       # Vista para crear usuario-persona (ejemplo adicional)
-    UsuarioListaView,          # Vista para listar usuarios con su persona y rol (solo para administradores)
-    
+    UsuarioListaView,            # Vista para listar usuarios con su persona y rol (solo para administradores)
+    UsuarioDetalleUpdateView,    # Vista para ver/actualizar un usuario-persona concreto
 )
 
 # Lista de rutas específicas de la app users
@@ -39,5 +39,8 @@ urlpatterns = [
     
     # GET /api/usuarios/listar/ -> Lista usuarios con persona y rol
     path('listar/', UsuarioListaView.as_view(), name='usuarios_listar'),
+
+    # GET/PUT /api/usuarios/editar/<pk>/ -> Detalle + actualización de usuario/persona
+    path('editar/<int:pk>/', UsuarioDetalleUpdateView.as_view(), name='usuarios_detalle_editar'),
 ]
 

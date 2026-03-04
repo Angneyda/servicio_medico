@@ -114,7 +114,7 @@ const SignInPage = () => {
               fill
               className="object-cover"
               priority
-              sizes="(min-width: 768px) 50vw, 100vw"
+              sizes="(min-width: 800px) 50vw, 100vw"
               style={{
                 opacity: isRegisterMode ? 1 : 0,
                 transform: isRegisterMode ? 'scale(1)' : 'scale(1.04)',
@@ -171,13 +171,13 @@ const SignInPage = () => {
         >
         <div className="w-full max-w-xl">
           <div className="flex flex-col items-center mb-8">
-            <div className="mb-4 transition-transform hover:scale-105 duration-300">
+            <div className="mb-5 transition-transform hover:scale-105 duration-300">
               <Image
                 src="/images/cover/logo-conatel-medico.jpeg"
                 alt="Servicio Médico CONATEL"
-                width={220}
-                height={120}
-                className="h-32 w-auto object-contain"
+                width={460}
+                height={420}
+                className="h-40 w-auto object-contain"
                 priority
               />
             </div>

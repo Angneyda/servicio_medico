@@ -1,3 +1,6 @@
+"use client";
+
+import { useRouter } from 'next/navigation';
 import { UserRow } from '../../hooks/useUsers';
 
 interface UsersTableProps {
@@ -5,6 +8,8 @@ interface UsersTableProps {
 }
 
 const UsersTable = ({ users }: UsersTableProps) => {
+  const router = useRouter();
+
   return (
     <div className="rounded-sm border border-stroke bg-white px-5 pt-6 pb-2.5 shadow-default dark:border-strokedark dark:bg-boxdark sm:px-7.5 xl:pb-1">
       <h4 className="mb-4 text-center text-xl font-semibold text-black dark:text-white">
@@ -61,6 +66,7 @@ const UsersTable = ({ users }: UsersTableProps) => {
               <div className="flex items-center justify-center gap-2 p-2.5 xl:p-5">
                 <button
                   type="button"
+                  onClick={() => router.push(`/users/${user.id}/edit`)}
                   className="rounded border border-emerald-500 px-3 py-1 text-xs font-semibold text-emerald-600 hover:bg-emerald-50 dark:border-emerald-500 dark:text-emerald-300 dark:hover:bg-emerald-500/10"
                 >
                   Editar

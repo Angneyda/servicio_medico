@@ -3,6 +3,8 @@
 from django.conf import settings
 # Importa la función para autenticar usuarios de Django
 from django.contrib.auth import authenticate
+from django.contrib.auth.models import User
+from django.shortcuts import get_object_or_404
 # Importa utilidades de DB
 # Importa utilidades y clases de DRF para manejar respuestas y permisos
 from rest_framework import status
@@ -21,8 +23,9 @@ from .serializers import (
     UserPersonaCreateSerializer,
     UserPersonaDetailSerializer,
     UsuarioListaSerializer,
+    UsuarioDetalleUpdateSerializer,
 )
-# --- Aprendizaje: Vista para registro de usuario ---
+# --- Vista para registro de usuario ---
 # Esta vista permite registrar un usuario y su persona asociada desde la API.
 from rest_framework import status
 from rest_framework.response import Response
@@ -249,3 +252,60 @@ class UsuarioListaView(ListAPIView):
             .select_related('user', 'persona')
             .all()
         )
+
+
+class UsuarioDetalleUpdateView(APIView):
+    """Permite obtener y actualizar datos combinados de User + Persona.
+
+    URL base: /api/usuarios/editar/<pk>/
+    """
+
+    permission_classes = [IsAdminUser]
+
+    def get_object(self, pk: int) -> UserPersona:
+        return get_object_or_404(UserPersona, pk=pk)
+
+    def get(self, request, pk: int):
+        """
+        Devuelve los datos necesarios para prellenar el formulario de edición.
+
+        Aquí usamos el serializer en modo SOLO LECTURA:
+        - instance = UserPersona
+        - NO pasamos data, solo queremos representation (serializer.data)
+        """
+        # 1) Buscamos el vínculo UserPersona o devolvemos 404 si no existe
+        user_persona = self.get_object(pk)
+
+        # 2) Creamos el serializer PASÁNDOLE la instancia
+        serializer = UsuarioDetalleUpdateSerializer(instance=user_persona)
+
+        # 3) serializer.data llama internamente a to_representation()
+        #    y devuelve el diccionario listo para el frontend
+        return Response(serializer.data)
+
+    def put(self, request, pk: int):
+        """
+        Actualiza datos de usuario y persona asociados al vínculo UserPersona.
+
+        Aquí usamos el serializer en modo ESCRITURA:
+        - instance = UserPersona (lo que vamos a editar)
+        - data = request.data (lo que envía el frontend)
+        """
+        # 1) Obtenemos el vínculo UserPersona a editar
+        user_persona = self.get_object(pk)
+
+        # 2) Creamos el serializer con instancia + data
+        serializer = UsuarioDetalleUpdateSerializer(
+            instance=user_persona,
+            data=request.data,
+            partial=False,
+        )
+
+        # 3) Validar
+        serializer.is_valid(raise_exception=True)
+
+        # 4) Guardar cambios (llama a update)
+        serializer.save()
+
+        # 5) Respuesta
+        return Response({'detail': 'Usuario/persona actualizados correctamente.'})  

@@ -211,3 +211,172 @@ class UsuarioListaSerializer(serializers.ModelSerializer):
         user = obj.user
         first_group = user.groups.first()
         return first_group.name if first_group is not None else ''
+    
+
+# ------------------------ Update de Usuario ----------------------------
+
+# Este serializer NO es ModelSerializer sino Serializer normal
+# porque trabajamos con 2 modelos a la vez (User + Personas)
+# a través del vínculo UserPersona.
+class UsuarioDetalleUpdateSerializer(serializers.Serializer):
+    """
+    Serializer para ver y actualizar datos combinados de User + Persona
+    usando el vínculo UserPersona (modelo intermedio).
+    """
+
+    # ========== CAMPOS QUE ESPERAMOS DEL FRONTEND ==========
+
+    # Campos que van a la tabla auth_user
+    username = serializers.CharField(
+        max_length=150,
+        required=False,      # en un update pueden venir o no
+    )
+    email = serializers.EmailField(
+        required=False,
+        allow_blank=True,    # permitimos cadena vacía
+    )
+
+    # Campos que van a la tabla Personas
+    cedula = serializers.CharField(
+        max_length=20,
+        required=False,
+        allow_blank=True,
+    )
+    nombre = serializers.CharField(
+        max_length=150,
+        required=False,
+        allow_blank=True,
+    )
+    apellido = serializers.CharField(
+        max_length=150,
+        required=False,
+        allow_blank=True,
+    )
+    sexo = serializers.CharField(
+        max_length=10,
+        required=False,
+        allow_blank=True,
+    )
+    # DRF se encarga de parsear "YYYY-MM-DD" a date
+    fecha_nacimiento = serializers.DateField(
+        required=False,
+        allow_null=True,
+    )
+    telefono = serializers.CharField(
+        max_length=20,
+        required=False,
+        allow_blank=True,
+    )
+
+    # Estos usan los mismos choices que tu modelo Personas
+    tipo_persona = serializers.ChoiceField(
+        choices=TIPO_PERSONA_CHOICES,  # viene de arriba en este mismo archivo
+        required=False,
+        allow_null=True,
+    )
+    estatus = serializers.ChoiceField(
+        choices=ESTATUS_CHOICES,
+        required=False,
+        allow_null=True,
+    )
+
+    # ========== VALIDACIONES PERSONALIZADAS ==========
+
+    def validate_username(self, value: str) -> str:
+        """
+        Valida que el username no exista en OTRO usuario distinto
+        al que está vinculado a este UserPersona.
+        """
+        # self.instance será un objeto UserPersona cuando usemos el serializer
+        instance = self.instance
+
+        # Buscamos si ya existe un User con ese username
+        qs = User.objects.filter(username=value)
+
+        # Si estamos editando (instance != None), excluir el propio usuario actual
+        if instance is not None:
+            qs = qs.exclude(pk=instance.user.pk)
+
+        # Si queda alguno, es que el username está en uso por otra persona
+        if qs.exists():
+            raise serializers.ValidationError('El username ya existe.')
+        return value
+
+    # ========== CÓMO LO ENVIAMOS AL FRONTEND (GET) ==========
+
+    def to_representation(self, instance: UserPersona):
+        """
+        Convierte un UserPersona en el JSON plano que queremos
+        mandar al frontend.
+        - instance: es un objeto UserPersona (tiene .user y .persona)
+        """
+        user = instance.user       # User de Django (auth_user)
+        persona = instance.persona # Personas (tu tabla mapeada)
+
+        # Devolvemos un diccionario simple (lo que verá el frontend)
+        return {
+            'id': instance.pk,
+            'username': getattr(user, 'username', ''),
+            'email': getattr(user, 'email', '') or '',
+            'cedula': getattr(persona, 'cedula', '') or '',
+            'nombre': getattr(persona, 'nombre', '') or '',
+            'apellido': getattr(persona, 'apellido', '') or '',
+            'sexo': getattr(persona, 'sexo', '') or '',
+            # DRF serializa DateField como "YYYY-MM-DD"
+            'fecha_nacimiento': persona.fecha_nacimiento,
+            'telefono': getattr(persona, 'telefono', '') or '',
+            'tipo_persona': persona.tipo_persona,
+            'estatus': persona.estatus,
+        }
+
+    # ========== CÓMO APLICAMOS LOS CAMBIOS AL MODELO (PUT) ==========
+
+    def update(self, instance: UserPersona, validated_data):
+        """
+        Actualiza User y Persona a partir de los datos validados.
+        - instance: UserPersona que estamos editando
+        - validated_data: dict con los campos ya validados por DRF
+        """
+        user = instance.user
+        persona = instance.persona
+
+        # --- Actualizar User (auth_user) ---
+
+        # username: solo si vino en el payload
+        username = validated_data.get('username', None)
+        if username is not None:
+            user.username = username
+
+         # email: si viene en validated_data, lo seteamos (puede ser vacío)
+        if 'email' in validated_data:
+            nuevo_email = validated_data.get('email') or ''
+            user.email = nuevo_email
+            # Mantener la misma lógica que en create:
+            # un solo campo de correo que alimenta también Personas.correo
+            persona.correo = nuevo_email
+        user.save()
+
+        # --- Actualizar Persona ---
+
+        # Campos de texto simples: si vienen, los copiamos
+        for field in ['cedula', 'nombre', 'apellido', 'sexo', 'telefono']:
+            if field in validated_data:
+                # Si viene "", lo guardamos como cadena vacía
+                setattr(persona, field, validated_data[field] or '')
+
+        # Fecha de nacimiento: DRF ya la convierte a objeto date
+        if 'fecha_nacimiento' in validated_data:
+            persona.fecha_nacimiento = validated_data['fecha_nacimiento']
+
+        # tipo_persona y estatus: vienen ya validados por ChoiceField,
+        # así que aquí solo los copiamos
+        if 'tipo_persona' in validated_data:
+            persona.tipo_persona = validated_data['tipo_persona']
+        if 'estatus' in validated_data:
+            persona.estatus = validated_data['estatus']
+
+        persona.save()
+
+        # Muy importante: devolvemos la instancia (UserPersona) actualizada
+        return instance
+
