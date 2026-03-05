@@ -152,36 +152,32 @@ const EditUserPage = () => {
 
   // Si todavía estamos cargando los datos iniciales, mostramos solo un mensaje
   if (loading) {
-    return (
-      <div className="rounded-md border border-primary/30 bg-white/80 p-6 text-center text-base font-semibold text-gray-700 shadow-md shadow-primary/5 dark:border-primary/40 dark:bg-boxdark/80 dark:text-gray-100">
-        Cargando datos del usuario...
-      </div>
-    );
+      return (
+        <div className="rounded-md border border-primary/30 bg-white/80 p-6 text-center text-base font-semibold text-gray-700 shadow-md shadow-primary/5 dark:border-primary/40 dark:bg-boxdark/80 dark:text-gray-100">
+          Cargando datos del usuario...
+        </div>
+      );
   }
 
   // ----------------------
   // JSX principal: breadcrumb + formulario de edición
   // ----------------------
+  const displayName = `${form.nombre || ''} ${form.apellido || ''}`.trim();
+  const pageName = displayName ? `Editar usuario ${displayName}` : `Editar usuario #${id}`;
+
   return (
     <>
-      <Breadcrumb
-        pageName={`Editar usuario #${id}`}
-        parentName="Usuarios"
-        parentHref="/users"
-      />
+      <Breadcrumb pageName={pageName} parentName="Usuarios" parentHref="/users" />
       <div className="rounded-md border border-primary/30 bg-white/80 p-6 shadow-md shadow-primary/5 dark:border-primary/40 dark:bg-boxdark/80">
         <h4 className="mb-4 text-lg font-bold text-primary dark:text-primary">
-          Editar datos de usuario y persona
+          Editar datos de usuario
         </h4>
-
         {error && (
           <div className="mb-4 rounded border border-red-300 bg-red-50 p-3 text-base font-semibold text-red-600 dark:border-red-500 dark:bg-red-500/10 dark:text-red-200">
             {error}
           </div>
         )}
-
         <form onSubmit={handleSubmit} className="grid gap-5 md:grid-cols-2">
-          {/* Username */}
           <div className="flex flex-col gap-1">
             <label
               className="text-base font-semibold text-black dark:text-white"
@@ -379,14 +375,14 @@ const EditUserPage = () => {
             <button
               type="submit"
               disabled={submitting}
-              className="inline-flex items-center justify-center rounded bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
+              className="inline-flex items-center justify-center rounded-md border border-emerald-600 px-4 py-2 text-sm font-medium text-emerald-700 hover:bg-emerald-50 disabled:cursor-not-allowed disabled:opacity-60"
             >
               {submitting ? 'Guardando cambios...' : 'Guardar cambios'}
             </button>
             <button
               type="button"
               onClick={() => router.push('/users')}
-              className="inline-flex items-center justify-center rounded border border-stroke px-4 py-2 text-sm font-medium text-black hover:bg-gray-100 dark:border-strokedark dark:text-white dark:hover:bg-boxdark/60"
+              className="inline-flex items-center justify-center rounded-md border border-red-600 px-4 py-2 text-sm font-medium text-red-600 hover:bg-red-50"
             >
               Cancelar
             </button>

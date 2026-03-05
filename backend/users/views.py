@@ -4,8 +4,8 @@ from django.conf import settings
 # Importa la función para autenticar usuarios de Django
 from django.contrib.auth import authenticate
 from django.contrib.auth.models import User
+from django.db import transaction
 from django.shortcuts import get_object_or_404
-# Importa utilidades de DB
 # Importa utilidades y clases de DRF para manejar respuestas y permisos
 from rest_framework import status
 from rest_framework.permissions import AllowAny, IsAuthenticated, IsAdminUser
@@ -309,3 +309,33 @@ class UsuarioDetalleUpdateView(APIView):
 
         # 5) Respuesta
         return Response({'detail': 'Usuario/persona actualizados correctamente.'})  
+
+
+class UsuarioDeleteView(APIView):
+    """Permite eliminar completamente un usuario y su persona asociada.
+
+    URL: DELETE /api/usuarios/eliminar/<pk>/
+
+    Donde ``pk`` es el id del vínculo UserPersona.
+    """
+
+    permission_classes = [IsAdminUser]
+
+    def delete(self, request, pk: int):
+        # Buscamos el vínculo UserPersona o devolvemos 404
+        user_persona = get_object_or_404(UserPersona, pk=pk)
+
+        # Guardamos referencias antes de borrar
+        user = user_persona.user
+        persona = user_persona.persona
+
+        # Borramos usuario y persona en una operación lógica
+        with transaction.atomic():
+            # Al borrar el User se elimina también el vínculo UserPersona
+            user.delete()
+
+            # Borramos el registro de persona si sigue existiendo
+            if persona.pk is not None:
+                persona.delete()
+
+        return Response({'detail': 'Usuario y persona eliminados correctamente.'}, status=status.HTTP_204_NO_CONTENT)

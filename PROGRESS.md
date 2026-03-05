@@ -1,6 +1,6 @@
 # Registro de Progreso del Proyecto SISMED
 
-**Última Actualización:** 4 de Marzo de 2026
+**Última Actualización:** 5 de Marzo de 2026
 
 ## 1. Refactorización de Arquitectura (Backend)
 Se ha completado la migración de un modelo monolítico a una arquitectura modular basada en aplicaciones Django, alineada con esquemas de base de datos PostgreSQL.
@@ -138,7 +138,7 @@ Se ha integrado la plantilla **TailAdmin (Next.js + TypeScript)** y configurado 
 
 ## 6. Próximos Pasos Pendientes
 - [x] **Listado Usuarios**: Mostrar usuarios con su persona vinculada en la pantalla de Usuarios (completado para administradores; pendiente solo implementar acción de Borrar).
-- [ ] **Borrado de usuarios**: Implementar endpoint y lógica para eliminar usuarios/personas desde la API y conectar el botón "Borrar" en el frontend.
+- [x] **Borrado de usuarios**: Implementar endpoint y lógica para eliminar usuarios/personas desde la API y conectar el botón "Borrar" en el frontend.
 - [ ] **Roles y Permisos (RBAC)**: Crear pantallas para gestión de Roles y Permisos (Groups/Permissions de Django).
 - [ ] **Consumo de Datos**: Crear páginas específicas ("Staff Médico", "Historias") en el frontend que usen los hooks creados para mostrar datos reales.
 - [ ] **Formularios de Creación**: Implementar formularios para agregar pacientes y citas médicas.
@@ -151,6 +151,20 @@ Se ha integrado la plantilla **TailAdmin (Next.js + TypeScript)** y configurado 
     - Formulario en Next.js que envía los datos al endpoint `/api/usuarios/registro/`.
     - Validación de campos requeridos en el cliente y exposición de mensajes de error del backend cuando ocurren.
     - Flujo completo probado: creación desde la interfaz web, redirección al listado y visualización del nuevo usuario.
+
+### [05/Mar/2026] Borrado de Usuarios (Backend + Frontend)
+
+- [x] **Endpoint de borrado (backend):**
+    - Creado endpoint protegido `DELETE /api/usuarios/eliminar/<id>/` que trabaja sobre el vínculo `UserPersona`.
+    - Elimina al usuario de Django y a la persona asociada dentro de una transacción atómica.
+    - Restringido a administradores (`IsAdminUser`).
+- [x] **Acción Borrar en listado (frontend):**
+    - El botón **Borrar** en la tabla de usuarios ahora llama al endpoint `DELETE /api/usuarios/eliminar/<id>/`.
+    - Se muestra una confirmación en el navegador antes de eliminar.
+    - Tras un borrado exitoso, redirige a `/users?deleted=1` para recargar la lista.
+- [x] **Mensaje de éxito al eliminar:**
+    - La pantalla `/users` detecta el parámetro `?deleted=1`.
+    - Muestra un mensaje verde "Usuario eliminado correctamente." con opción de cerrarlo y auto-ocultado tras unos segundos.
 
 ---
 *Este archivo sirve como punto de control para el desarrollo del proyecto.*

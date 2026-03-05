@@ -209,34 +209,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                   );
                 }}
               </SidebarLinkGroup>
-              {/* <!-- Menu Item Dashboard --> */}
-
-                            {/* <!-- Menu Item Usuarios --> */} {/* Comentario del item Usuarios */}
-              <li> {/* Contenedor del item Usuarios */}
-                <Link
-                  href="/users" /* Ruta a la pantalla de usuarios */
-                  className={
-                    'group flex items-center gap-2.5 rounded-sm px-4 py-2 font-medium text-bodydark1 duration-300 ease-in-out hover:bg-graydark dark:hover:bg-meta-4 ' +
-                    (pathname === '/users' ? 'bg-graydark dark:bg-meta-4' : '')
-                  } /* Clases del enlace */
-                >
-                  <svg
-                    className="fill-current" /* Clase del icono */
-                    width="18" /* Ancho del icono */
-                    height="18" /* Alto del icono */
-                    viewBox="0 0 24 24" /* ViewBox del icono */
-                    fill="none" /* Color de relleno */
-                    xmlns="http://www.w3.org/2000/svg" /* Namespace SVG */
-                  >
-                    <path
-                      d="M12 12c2.7614 0 5-2.2386 5-5S14.7614 2 12 2 7 4.2386 7 7s2.2386 5 5 5Zm0 2c-3.866 0-7 3.134-7 7h2c0-2.7614 2.2386-5 5-5s5 2.2386 5 5h2c0-3.866-3.134-7-7-7Z" /* Path del icono */
-                      fill="" /* Hereda el fill */
-                    />
-                  </svg>
-                  {'Usuarios'} {/* Texto del menú */}
-                </Link>
-              </li>
-
+             
               {/* <!-- Menu Item Calendar --> */}
               <li>
                 <Link
@@ -491,49 +464,168 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
           {/* <!-- Others Group --> */}
           <div>
             <h3 className="mb-4 ml-4 text-sm font-semibold text-bodydark2">
-              OTHERS
+              OTROS
             </h3>
 
             <ul className="mb-6 flex flex-col gap-1.5">
+              {/* <!-- Menu Item Dashboard --> */}
+
+              {/* <!-- Grupo Gestión (Usuarios, Roles, Permisos) --> */}
+              <SidebarLinkGroup
+                  activeCondition={
+                    pathname === '/users' ||
+                    pathname.startsWith('/users') ||
+                    pathname === '/roles' ||
+                    pathname.startsWith('/roles') ||
+                    pathname === '/permissions' ||
+                    pathname.startsWith('/permissions')
+                  }
+                >
+                {(handleClick, open) => (
+                  <>
+                    <button
+                      type="button"
+                      className={`group flex w-full items-center gap-2.5 rounded-sm px-4 py-2 font-medium text-bodydark1 duration-300 ease-in-out hover:bg-graydark dark:hover:bg-meta-4 ${
+                        (pathname === '/users' ||
+                          pathname.startsWith('/users') ||
+                          pathname === '/roles' ||
+                          pathname.startsWith('/roles') ||
+                          pathname === '/permissions' ||
+                          pathname.startsWith('/permissions')) &&
+                        'bg-graydark dark:bg-meta-4'
+                      }`}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        if (sidebarExpanded) {
+                          handleClick();
+                        } else {
+                          setSidebarExpanded(true);
+                        }
+                      }}
+                    >
+                      <svg
+                        className="fill-current"
+                        width="18"
+                        height="18"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        xmlns="http://www.w3.org/2000/svg"
+                      >
+                        <path
+                          d="M12 2C9.79 2 8 3.79 8 6C8 8.21 9.79 10 12 10C14.21 10 16 8.21 16 6C16 3.79 14.21 2 12 2ZM6 6C6 2.69 8.69 0 12 0C15.31 0 18 2.69 18 6C18 9.31 15.31 12 12 12C8.69 12 6 9.31 6 6ZM4 20C4 16.13 7.13 13 11 13H13C16.87 13 20 16.13 20 20C20 21.1 19.1 22 18 22H6C4.9 22 4 21.1 4 20ZM6 20H18C18 17.24 15.76 15 13 15H11C8.24 15 6 17.24 6 20Z"
+                          fill=""
+                        />
+                      </svg>
+                      <span>Gestión</span>
+                      <svg
+                        className={`ml-auto fill-current ${open && 'rotate-180'}`}
+                        width="20"
+                        height="20"
+                        viewBox="0 0 20 20"
+                        fill="none"
+                        xmlns="http://www.w3.org/2000/svg"
+                      >
+                        <path
+                          fillRule="evenodd"
+                          clipRule="evenodd"
+                          d="M4.41107 6.9107C4.73651 6.58527 5.26414 6.58527 5.58958 6.9107L10.0003 11.3214L14.4111 6.91071C14.7365 6.58527 15.2641 6.58527 15.5896 6.91071C15.915 7.23614 15.915 7.76378 15.5896 8.08922L10.5896 13.0892C10.2641 13.4147 9.73651 13.4147 9.41107 13.0892L4.41107 8.08922C4.08563 7.76378 4.08563 7.23614 4.41107 6.9107Z"
+                          fill=""
+                        />
+                      </svg>
+                    </button>
+
+                    <div
+                      className={`translate transform overflow-hidden ${
+                        !open && 'hidden'
+                      }`}
+                    >
+                      <ul className="mt-4 mb-5.5 flex flex-col gap-2.5 pl-6">
+                        <li>
+                          <Link
+                            href="/users"
+                            className={
+                              'group relative flex items-center gap-2.5 rounded-md px-4 font-medium text-bodydark2 duration-300 ease-in-out hover:text-white ' +
+                              (pathname.startsWith('/users')
+                                ? '!text-white'
+                                : '')
+                            }
+                          >
+                            Usuarios
+                          </Link>
+                        </li>
+                        <li>
+                          <Link
+                            href="/roles"
+                            className={
+                              'group relative flex items-center gap-2.5 rounded-md px-4 font-medium text-bodydark2 duration-300 ease-in-out hover:text-white ' +
+                              (pathname.startsWith('/roles')
+                                ? '!text-white'
+                                : '')
+                            }
+                          >
+                            Roles
+                          </Link>
+                        </li>
+                        <li>
+                          <Link
+                            href="/permissions"
+                            className={
+                              'group relative flex items-center gap-2.5 rounded-md px-4 font-medium text-bodydark2 duration-300 ease-in-out hover:text-white ' +
+                              (pathname.startsWith('/permissions')
+                                ? '!text-white'
+                                : '')
+                            }
+                          >
+                            Permisos
+                          </Link>
+                        </li>
+                      </ul>
+                    </div>
+                  </>
+                )}
+              </SidebarLinkGroup>
+
+
+
               {/* <!-- Menu Item Chart --> */}
               <li>
-                <Link
-                  href="/chart"
-                  className={`group relative flex items-center gap-2.5 rounded-sm py-2 px-4 font-medium text-bodydark1 duration-300 ease-in-out hover:bg-graydark dark:hover:bg-meta-4 ${
-                    pathname.includes('chart') && 'bg-graydark dark:bg-meta-4'
-                  }`}
-                >
-                  <svg
-                    className="fill-current"
-                    width="18"
-                    height="19"
-                    viewBox="0 0 18 19"
-                    fill="none"
-                    xmlns="http://www.w3.org/2000/svg"
+               <Link
+                    href="/chart"
+                    className={`group relative flex items-center gap-2.5 rounded-sm py-2 px-4 font-medium text-bodydark1 duration-300 ease-in-out hover:bg-graydark dark:hover:bg-meta-4 ${
+                      pathname.includes('chart') && 'bg-graydark dark:bg-meta-4'
+                    }`}
                   >
-                    <g clipPath="url(#clip0_130_9801)">
-                      <path
-                        d="M10.8563 0.55835C10.5188 0.55835 10.2095 0.8396 10.2095 1.20522V6.83022C10.2095 7.16773 10.4907 7.4771 10.8563 7.4771H16.8751C17.0438 7.4771 17.2126 7.39272 17.3251 7.28022C17.4376 7.1396 17.4938 6.97085 17.4938 6.8021C17.2688 3.28647 14.3438 0.55835 10.8563 0.55835ZM11.4751 6.15522V1.8521C13.8095 2.13335 15.6938 3.8771 16.1438 6.18335H11.4751V6.15522Z"
-                        fill=""
-                      />
-                      <path
-                        d="M15.3845 8.7427H9.1126V2.69582C9.1126 2.35832 8.83135 2.07707 8.49385 2.07707C8.40947 2.07707 8.3251 2.07707 8.24072 2.07707C3.96572 2.04895 0.506348 5.53645 0.506348 9.81145C0.506348 14.0864 3.99385 17.5739 8.26885 17.5739C12.5438 17.5739 16.0313 14.0864 16.0313 9.81145C16.0313 9.6427 16.0313 9.47395 16.0032 9.33332C16.0032 8.99582 15.722 8.7427 15.3845 8.7427ZM8.26885 16.3083C4.66885 16.3083 1.77197 13.4114 1.77197 9.81145C1.77197 6.3802 4.47197 3.53957 7.8751 3.3427V9.36145C7.8751 9.69895 8.15635 10.0083 8.52197 10.0083H14.7938C14.6813 13.4958 11.7845 16.3083 8.26885 16.3083Z"
-                        fill=""
-                      />
-                    </g>
-                    <defs>
-                      <clipPath id="clip0_130_9801">
-                        <rect
-                          width="18"
-                          height="18"
-                          fill="white"
-                          transform="translate(0 0.052124)"
+                    <svg
+                      className="fill-current"
+                      width="18"
+                      height="19"
+                      viewBox="0 0 18 19"
+                      fill="none"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <g clipPath="url(#clip0_130_9801)">
+                        <path
+                          d="M10.8563 0.55835C10.5188 0.55835 10.2095 0.8396 10.2095 1.20522V6.83022C10.2095 7.16773 10.4907 7.4771 10.8563 7.4771H16.8751C17.0438 7.4771 17.2126 7.39272 17.3251 7.28022C17.4376 7.1396 17.4938 6.97085 17.4938 6.8021C17.2688 3.28647 14.3438 0.55835 10.8563 0.55835ZM11.4751 6.15522V1.8521C13.8095 2.13335 15.6938 3.8771 16.1438 6.18335H11.4751V6.15522Z"
+                          fill=""
                         />
-                      </clipPath>
-                    </defs>
-                  </svg>
-                  Chart
-                </Link>
+                        <path
+                          d="M15.3845 8.7427H9.1126V2.69582C9.1126 2.35832 8.83135 2.07707 8.49385 2.07707C8.40947 2.07707 8.3251 2.07707 8.24072 2.07707C3.96572 2.04895 0.506348 5.53645 0.506348 9.81145C0.506348 14.0864 3.99385 17.5739 8.26885 17.5739C12.5438 17.5739 16.0313 14.0864 16.0313 9.81145C16.0313 9.6427 16.0313 9.47395 16.0032 9.33332C16.0032 8.99582 15.722 8.7427 15.3845 8.7427ZM8.26885 16.3083C4.66885 16.3083 1.77197 13.4114 1.77197 9.81145C1.77197 6.3802 4.47197 3.53957 7.8751 3.3427V9.36145C7.8751 9.69895 8.15635 10.0083 8.52197 10.0083H14.7938C14.6813 13.4958 11.7845 16.3083 8.26885 16.3083Z"
+                          fill=""
+                        />
+                      </g>
+                      <defs>
+                        <clipPath id="clip0_130_9801">
+                          <rect
+                            width="18"
+                            height="18"
+                            fill="white"
+                            transform="translate(0 0.052124)"
+                          />
+                        </clipPath>
+                      </defs>
+                    </svg>
+                    Chart
+                  </Link>
               </li>
               {/* <!-- Menu Item Chart --> */}
 

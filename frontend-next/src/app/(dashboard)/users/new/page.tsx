@@ -276,14 +276,14 @@ const NewUserPage = () => {
             <button
               type="submit"
               disabled={submitting}
-              className="inline-flex items-center justify-center rounded bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
+              className="inline-flex items-center justify-center rounded-md border border-emerald-600 px-4 py-2 text-sm font-medium text-emerald-700 hover:bg-emerald-50 disabled:cursor-not-allowed disabled:opacity-60"
             >
               {submitting ? 'Guardando...' : 'Guardar usuario'}
             </button>
             <button
               type="button"
               onClick={() => router.push('/users')}
-              className="inline-flex items-center justify-center rounded border border-stroke px-4 py-2 text-sm font-medium text-black hover:bg-gray-100 dark:border-strokedark dark:text-white dark:hover:bg-boxdark/60"
+              className="inline-flex items-center justify-center rounded-md border border-red-600 px-4 py-2 text-sm font-medium text-red-600 hover:bg-red-50"
             >
               Cancelar
             </button>

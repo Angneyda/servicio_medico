@@ -15,6 +15,7 @@ from .views import (
     UserPersonaCreateView,       # Vista para crear usuario-persona (ejemplo adicional)
     UsuarioListaView,            # Vista para listar usuarios con su persona y rol (solo para administradores)
     UsuarioDetalleUpdateView,    # Vista para ver/actualizar un usuario-persona concreto
+    UsuarioDeleteView,           # Vista para eliminar usuario-persona
 )
 
 # Lista de rutas específicas de la app users
@@ -42,5 +43,8 @@ urlpatterns = [
 
     # GET/PUT /api/usuarios/editar/<pk>/ -> Detalle + actualización de usuario/persona
     path('editar/<int:pk>/', UsuarioDetalleUpdateView.as_view(), name='usuarios_detalle_editar'),
+
+    # DELETE /api/usuarios/eliminar/<pk>/ -> Eliminar usuario y persona asociados
+    path('eliminar/<int:pk>/', UsuarioDeleteView.as_view(), name='usuarios_eliminar'),
 ]
 

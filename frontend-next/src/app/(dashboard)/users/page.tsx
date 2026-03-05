@@ -9,24 +9,17 @@ import { useRouter, useSearchParams } from 'next/navigation';
 const UsersPage = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const created = searchParams.get('created');
-  const updated = searchParams.get('updated');
-  const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [successMessage, setSuccessMessage] = useState<string | null>(() => {
+    const created = searchParams.get('created');
+    const updated = searchParams.get('updated');
+    const deleted = searchParams.get('deleted');
+
+    if (created === '1') return 'Usuario registrado correctamente.';
+    if (updated === '1') return 'Usuario actualizado correctamente.';
+    if (deleted === '1') return 'Usuario eliminado correctamente.';
+    return null;
+  });
   const { users, loading, error } = useUsers();
-
-  useEffect(() => {
-    if (created === '1') {
-      setSuccessMessage('Usuario registrado correctamente.');
-      return;
-    }
-
-    if (updated === '1') {
-      setSuccessMessage('Usuario actualizado correctamente.');
-      return;
-    }
-
-    setSuccessMessage(null);
-  }, [created, updated]);
 
   useEffect(() => {
     if (!successMessage) return;
@@ -36,7 +29,7 @@ const UsersPage = () => {
 
   return (
     <>
-      <Breadcrumb pageName="Usuarios" />
+      <Breadcrumb pageName="Usuarios del Sistema" />
 
       {successMessage && (
         <div className="mb-4 flex items-center justify-between rounded border border-emerald-300 bg-emerald-50 p-3 text-sm font-semibold text-emerald-700 dark:border-emerald-500 dark:bg-emerald-500/10 dark:text-emerald-200">
@@ -57,7 +50,7 @@ const UsersPage = () => {
           className="inline-flex items-center justify-center rounded bg-primary px-4 py-2 text-xs font-medium text-white hover:bg-opacity-90"
           onClick={() => router.push('/users/new')}
         >
-          Nuevo usuario
+          Agregar Usuario
         </button>
       </div>
 
