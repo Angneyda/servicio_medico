@@ -1,9 +1,21 @@
 import React from "react";
 import { BsFillTrashFill, BsFillPencilFill } from "react-icons/bs";
-import dataJSON from '../../public/data.json';
 
-export const Table = ({ rows, deleteRow, editRow }) => {
-  const fields=Object.keys(Object.values(dataJSON)[0]).filter((item:any)=>!(item.startsWith("delta_")));
+type TableRow = {
+  id: string;
+  para: string;
+  criterion: number | string;
+  value: number | string;
+  type: number | string;
+};
+
+type TableProps = {
+  rows: TableRow[];
+  deleteRow: (index: number) => void;
+  editRow: (index: number) => void;
+};
+
+export const Table = ({ rows, deleteRow, editRow }: TableProps) => {
   
   return (
    
@@ -20,7 +32,7 @@ export const Table = ({ rows, deleteRow, editRow }) => {
           </tr>
         </thead>
         <tbody>
-          {rows.map((row:any, idx:number) => {
+          {rows.map((row, idx) => {
            
 
             return (

@@ -1,39 +1,60 @@
-import React, { useState } from "react";
-import dataJSON from '../../public/data.json';
+"use client";
 
+import React, { useMemo, useState } from "react";
+import ModalButton from '@/components/ModalButton';
 
+type DataJSON = Record<string, Record<string, unknown>>;
 
-export const Modal = ({ closeModal, onSubmit, defaultValue }) => {
-  const fields=Object.keys(Object.values(dataJSON)[0]).filter((item:any)=>!(item.startsWith("delta_")));
+type FormState = {
+  id: string;
+  para: string;
+  criterion: string;
+  value: string;
+  type: string;
+};
+
+type ModalProps = {
+  closeModal: () => void;
+  onSubmit: (state: FormState) => void;
+  defaultValue?: Partial<FormState>;
+  data?: DataJSON;
+};
+export const Modal = ({ closeModal, onSubmit, defaultValue, data }: ModalProps) => {
+  const dataJSON: DataJSON = data ?? {};
+  const fields = useMemo(() => {
+    const first = Object.values(dataJSON)[0];
+    if (!first) return [];
+    return Object.keys(first).filter((item) => !item.startsWith("delta_"));
+  }, [dataJSON]);
   
-  const [formState, setFormState] = useState(
-    defaultValue || {
-      id: "",
-      para: "price",
-        criterion: "0",
-        value: "",
-        type: "0",
-
-    }
-  );
+  const [formState, setFormState] = useState<FormState>({
+    id: defaultValue?.id ?? "",
+    para: defaultValue?.para ?? "price",
+    criterion: defaultValue?.criterion ?? "0",
+    value: defaultValue?.value ?? "",
+    type: defaultValue?.type ?? "0",
+  });
   const [errors, setErrors] = useState<string[]>([]);
+
+  const criterionNum = Number(formState.criterion);
+  const typeNum = Number(formState.type);
 
   const validateForm = () => {
     if (formState.id && formState.value) {
       setErrors([]);
       return true;
     } else {
-      let errorFields = [];
+      const errorFields: string[] = [];
       for (const [key, value] of Object.entries(formState)) {
         console.log(key);
         console.log(value);
         if (!value) {
-          errorFields.push(key=="id"?"Bond ID":key);
+          errorFields.push(key === "id" ? "Bond ID" : key);
         }
         else{
-        if (key=='id'){
-          if (!(Object.keys(dataJSON).includes(value)||value=="ALL")){
-            errorFields.push("INVALID_ID_"+value)
+        if (key === 'id'){
+          if (!(Object.keys(dataJSON).includes(String(value)) || value === "ALL")){
+            errorFields.push("INVALID_ID_" + String(value))
           }
         }
       }
@@ -44,21 +65,21 @@ export const Modal = ({ closeModal, onSubmit, defaultValue }) => {
     }
   };
 
-  const handleChange = (e) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     console.log(formState.criterion);
     console.log(e.target.name);
     console.log(e.target.name=="para"&&e.target.value=='rating');
-    console.log(formState.criterion>1&&formState.criterion<4);
+    console.log(Number(formState.criterion) > 1 && Number(formState.criterion) < 4);
     console.log(e.target.value);
-    console.log(e.target.name=="para"&&e.target.value=='rating'&&formState.criterion>1&&formState.criterion<4);
-    if (e.target.name=="para"&&e.target.value=='rating'&&formState.criterion>1&&formState.criterion<4) {setFormState({ ...formState, ["criterion"]: 0 });}
+    console.log(e.target.name=="para"&&e.target.value=='rating'&&Number(formState.criterion) > 1 && Number(formState.criterion) < 4);
+    if (e.target.name=="para"&&e.target.value=='rating'&&Number(formState.criterion) > 1 && Number(formState.criterion) < 4) {setFormState({ ...formState, ["criterion"]: '0' });}
     
     console.log(formState.criterion);
-    setFormState({ ...formState, [e.target.name]: e.target.value });
+    setFormState({ ...formState, [e.target.name]: e.target.value } as FormState);
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
+  const handleSubmit = (e: React.MouseEvent<HTMLButtonElement> | React.FormEvent) => {
+    e.preventDefault?.();
 
     if (!validateForm()) return;
 
@@ -70,8 +91,8 @@ export const Modal = ({ closeModal, onSubmit, defaultValue }) => {
   return (
     <div
       className="modal-container fixed z-50 flex top-25 bottom-5 "
-      onClick={(e) => {
-        if (e.target.className === "modal-container") closeModal();
+      onClick={(e: React.MouseEvent<HTMLDivElement>) => {
+        if (e.target === e.currentTarget) closeModal();
       }}
     >
     
@@ -107,7 +128,7 @@ export const Modal = ({ closeModal, onSubmit, defaultValue }) => {
                     onChange={handleChange}
                     value={formState.para}
                     >
-                      {fields.map((item:any,idx:number)=>(<option key={idx} value={item}>{item}</option>))}
+                      {fields.map((item, idx) => (<option key={idx} value={item}>{item}</option>))}
                     
                     </select>
                     <span className="absolute top-1/2 right-4 z-10 -translate-y-1/2">
@@ -139,7 +160,7 @@ export const Modal = ({ closeModal, onSubmit, defaultValue }) => {
             <div className="relative z-20 w-full rounded border border-stroke p-1.5 pr-8 font-medium outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input">
                   <div className="flex flex-wrap items-center"></div>
                   <span className="m-1.5 flex items-center justify-center rounded border-[.5px] border-stroke bg-gray py-1.5 px-2.5 text-sm font-medium dark:border-strokedark dark:bg-white/30">
-                      {formState.criterion==0?"goes down by":formState.criterion==1?"goes up by":formState.criterion==2?"is smaller than":formState.criterion==3?"is greater than":"is equal to"}
+                      {criterionNum === 0 ? "goes down by" : criterionNum === 1 ? "goes up by" : criterionNum === 2 ? "is smaller than" : criterionNum === 3 ? "is greater than" : "is equal to"}
                     </span>
             <select
             className="absolute top-0 left-0 z-20 h-full w-full bg-transparent opacity-0"
@@ -184,8 +205,8 @@ export const Modal = ({ closeModal, onSubmit, defaultValue }) => {
             <label className="mb-3 block text-sm font-medium text-black dark:text-white" htmlFor="type">Alert Type</label>
             <div className="relative z-20 w-full rounded border border-stroke p-1.5 pr-8 font-medium outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input">
                   <div className="flex flex-wrap items-center"></div>
-                  <span className={`${formState.type==0?"bg-[#04b20c]":formState.type==1?"bg-[#eab90f]":"bg-[#e13f32]"} m-1.5 flex items-center justify-center rounded border-[.5px] border-stroke py-1.5 px-2.5 text-white font-medium dark:border-strokedark`}>
-                      {formState.type==0?"Info":formState.type==1?"Warning":"Alert"}
+                    <span className={`${typeNum === 0 ? "bg-[#04b20c]" : typeNum === 1 ? "bg-[#eab90f]" : "bg-[#e13f32]"} m-1.5 flex items-center justify-center rounded border-[.5px] border-stroke py-1.5 px-2.5 text-white font-medium dark:border-strokedark`}>
+                      {typeNum === 0 ? "Info" : typeNum === 1 ? "Warning" : "Alert"}
                       
                             
                     </span>
@@ -225,10 +246,9 @@ export const Modal = ({ closeModal, onSubmit, defaultValue }) => {
           
           
           <br></br>
-          <button className="btn flex justify-center rounded bg-primary py-2 px-6 font-medium text-gray hover:shadow-1"
-                      type="submit" onClick={handleSubmit}>
+          <ModalButton variant="primary" size="md" type="submit" onClick={handleSubmit} className="flex justify-center">
             Submit
-          </button>
+          </ModalButton>
         </form>
       </div>
       </div>

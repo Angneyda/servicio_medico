@@ -222,7 +222,7 @@ const SettingsPage = () => {
                 <form action="#">
                   <div className="mb-4 flex items-center gap-3">
                     <div className="h-14 w-14 rounded-full">
-                      <Image src="/images/user/user-03.png" alt="User" width={56} height={56} className="rounded-full" />
+                      <Image src="/images/cover/man_5615661.png" alt="User" width={56} height={56} className="rounded-full" />
                     </div>
                     <div>
                       <span className="mb-1.5 text-black dark:text-white">

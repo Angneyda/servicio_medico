@@ -24,7 +24,11 @@ from .serializers import (
     UserPersonaDetailSerializer,
     UsuarioListaSerializer,
     UsuarioDetalleUpdateSerializer,
+    GroupSerializer,
+    PermissionSerializer,
+    UserGroupsSerializer,
 )
+from .permissions import RoutePermission
 # --- Vista para registro de usuario ---
 # Esta vista permite registrar un usuario y su persona asociada desde la API.
 from rest_framework import status
@@ -226,11 +230,21 @@ class MeView(APIView):
 
     def get(self, request):
         user = request.user
+        # Intentamos obtener grupos si el usuario es un auth.User
+        groups = []
+        try:
+            user_groups = getattr(user, 'groups', None)
+            if user_groups is not None:
+                groups = [g.name for g in user_groups.all()]
+        except Exception:
+            groups = []
+
         return Response(
             {
                 'id': getattr(user, 'id', None),
                 'username': getattr(user, 'username', None) or '',
                 'tipo_usuario': getattr(user, 'tipo_usuario', None),
+                'groups': groups,
             }
         )
 
@@ -242,7 +256,8 @@ class UsuarioListaView(ListAPIView):
     URL: GET /api/usuarios/listar/
     """
 
-    permission_classes = [IsAdminUser]
+    # Reemplazamos IsAdminUser por RoutePermission para demostrar protección por permiso/ruta
+    permission_classes = [RoutePermission]
     serializer_class = UsuarioListaSerializer
 
     def get_queryset(self):
@@ -281,7 +296,26 @@ class UsuarioDetalleUpdateView(APIView):
 
         # 3) serializer.data llama internamente a to_representation()
         #    y devuelve el diccionario listo para el frontend
-        return Response(serializer.data)
+        data = serializer.data
+
+        # Añadimos información de grupos del usuario para facilitar la UI
+        try:
+            django_user = user_persona.user
+            groups_qs = getattr(django_user, 'groups', None)
+            if groups_qs is not None:
+                groups = [g.name for g in groups_qs.all()]
+                group_ids = [g.pk for g in groups_qs.all()]
+            else:
+                groups = []
+                group_ids = []
+        except Exception:
+            groups = []
+            group_ids = []
+
+        data['groups'] = groups
+        data['group_ids'] = group_ids
+
+        return Response(data)
 
     def put(self, request, pk: int):
         """
@@ -339,3 +373,60 @@ class UsuarioDeleteView(APIView):
                 persona.delete()
 
         return Response({'detail': 'Usuario y persona eliminados correctamente.'}, status=status.HTTP_204_NO_CONTENT)
+
+
+# ------------------------ RBAC: Vistas para Roles y Permisos ------------------------
+from django.contrib.auth.models import Group, Permission
+from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView
+from rest_framework.permissions import IsAdminUser
+
+
+class PermissionListView(ListCreateAPIView):
+    """Listar y crear permisos (normalmente creados por Django migrations).
+
+    Acceso restringido a administradores.
+    """
+    permission_classes = [IsAdminUser]
+    queryset = Permission.objects.all().select_related('content_type')
+    serializer_class = PermissionSerializer
+
+
+class PermissionDetailView(RetrieveUpdateDestroyAPIView):
+    permission_classes = [IsAdminUser]
+    queryset = Permission.objects.all()
+    serializer_class = PermissionSerializer
+
+
+class GroupListView(ListCreateAPIView):
+    """Listar y crear roles (Groups)."""
+    permission_classes = [IsAdminUser]
+    queryset = Group.objects.all()
+    serializer_class = GroupSerializer
+
+
+class GroupDetailView(RetrieveUpdateDestroyAPIView):
+    permission_classes = [IsAdminUser]
+    queryset = Group.objects.all()
+    serializer_class = GroupSerializer
+
+
+class AssignRolesView(APIView):
+    """Asignar una lista de grupos a un UserPersona.
+
+    POST /api/usuarios/roles/assign/<user_persona_id>/  -> { "group_ids": [1,2] }
+    """
+    permission_classes = [IsAdminUser]
+
+    def post(self, request, pk: int):
+        user_persona = get_object_or_404(UserPersona, pk=pk)
+        serializer = UserGroupsSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        group_ids = serializer.validated_data['group_ids']
+
+        groups = Group.objects.filter(pk__in=group_ids)
+        # Asignar grupos al user (UserPersona.user es instancia de auth.User)
+        django_user = user_persona.user
+        django_user.groups.set(list(groups))
+        django_user.save()
+
+        return Response({'detail': 'Roles actualizados correctamente.'})

@@ -380,3 +380,65 @@ class UsuarioDetalleUpdateSerializer(serializers.Serializer):
         # Muy importante: devolvemos la instancia (UserPersona) actualizada
         return instance
 
+
+# ------------------------ RBAC: Serializers para Group y Permission ------------------------
+from django.contrib.auth.models import Group, Permission
+from django.contrib.contenttypes.models import ContentType
+
+
+class PermissionSerializer(serializers.ModelSerializer):
+    content_type = serializers.PrimaryKeyRelatedField(
+        queryset=ContentType.objects.all(),
+        required=False,
+        allow_null=True,
+    )
+
+    class Meta:
+        model = Permission
+        fields = ['id', 'codename', 'name', 'content_type']
+
+    def create(self, validated_data):
+        # Si no llega content_type, usamos el content_type de User por defecto
+        ct = validated_data.pop('content_type', None)
+        if ct is None:
+            from django.contrib.auth.models import User
+            ct = ContentType.objects.get_for_model(User)
+            validated_data['content_type'] = ct
+        return super().create(validated_data)
+
+
+class GroupSerializer(serializers.ModelSerializer):
+    permissions = PermissionSerializer(many=True, read_only=True)
+    permission_ids = serializers.PrimaryKeyRelatedField(
+        many=True,
+        queryset=Permission.objects.all(),
+        write_only=True,
+        required=False,
+    )
+
+    class Meta:
+        model = Group
+        fields = ['id', 'name', 'permissions', 'permission_ids']
+
+    def create(self, validated_data):
+        perm_ids = validated_data.pop('permission_ids', [])
+        group = super().create(validated_data)
+        if perm_ids:
+            group.permissions.set(perm_ids)
+        return group
+
+    def update(self, instance, validated_data):
+        perm_ids = validated_data.pop('permission_ids', None)
+        instance = super().update(instance, validated_data)
+        if perm_ids is not None:
+            instance.permissions.set(perm_ids)
+        return instance
+
+
+class UserGroupsSerializer(serializers.Serializer):
+    """Serializer para asignar o remover grupos de un `UserPersona`.
+
+    Entrada esperada: { "group_ids": [1,2,3] }
+    """
+    group_ids = serializers.ListField(child=serializers.IntegerField(), allow_empty=True)
+

@@ -24,7 +24,11 @@ const DropdownUser = () => {
         </span>
 
         <span className="h-12 w-12 rounded-full">
-          <img src="/images/user/user-01.png" alt="User" />
+          <img
+            src={user?.avatar || '/images/cover/man_5615661.png'}
+            alt="User"
+            onError={(e) => (e.currentTarget.src = '/images/cover/man_5615661.png')}
+          />
         </span>
 
         <svg

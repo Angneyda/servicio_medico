@@ -16,6 +16,12 @@ from .views import (
     UsuarioListaView,            # Vista para listar usuarios con su persona y rol (solo para administradores)
     UsuarioDetalleUpdateView,    # Vista para ver/actualizar un usuario-persona concreto
     UsuarioDeleteView,           # Vista para eliminar usuario-persona
+    # RBAC
+    GroupListView,
+    GroupDetailView,
+    AssignRolesView,
+    PermissionListView,
+    PermissionDetailView,
 )
 
 # Lista de rutas específicas de la app users
@@ -46,5 +52,16 @@ urlpatterns = [
 
     # DELETE /api/usuarios/eliminar/<pk>/ -> Eliminar usuario y persona asociados
     path('eliminar/<int:pk>/', UsuarioDeleteView.as_view(), name='usuarios_eliminar'),
+    # ---------------- RBAC: Roles y Permisos ----------------
+    # GET/POST /api/usuarios/roles/ -> Listar o crear roles (Group)
+    path('roles/', GroupListView.as_view(), name='roles_list_create'),
+    # GET/PUT/DELETE /api/usuarios/roles/<pk>/ -> Detalle de rol
+    path('roles/<int:pk>/', GroupDetailView.as_view(), name='roles_detail'),
+    # POST /api/usuarios/roles/assign/<pk>/ -> Asignar roles al UserPersona (pk = id de UserPersona)
+    path('roles/assign/<int:pk>/', AssignRolesView.as_view(), name='roles_assign'),
+    # GET/POST /api/usuarios/permissions/ -> Listar o crear permisos
+    path('permissions/', PermissionListView.as_view(), name='permissions_list_create'),
+    # GET/PUT/DELETE /api/usuarios/permissions/<pk>/ -> Detalle de permiso
+    path('permissions/<int:pk>/', PermissionDetailView.as_view(), name='permissions_detail'),
 ]
 

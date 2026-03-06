@@ -1,14 +1,24 @@
 import toast from 'react-hot-toast';
-import dataJSON from '../../public/data.json';
+
+type DataJSON = Record<string, Record<string, number | string>>;
+
+type AlertSetting = {
+  id: string;
+  para: string;
+  criterion: number;
+  value: string;
+  type: number;
+};
 
 
-const createToast=(title: string, msg: string, type: number)=>{toast.custom((t) => (
+const createToast = (title: string, msg: string, type: number) => {
+  toast.custom((t) => (
   
     <div
       className={`${
         t.visible ? 'animate-enter' : 'animate-leave'
       }
-      max-w-md w-full ${type=='0'?"bg-[#04b20c]":type=='1'?"bg-[#eab90f]":"bg-[#e13f32]"} shadow-lg rounded-lg pointer-events-auto flex ring-1 ring-black ring-opacity-5`}
+      max-w-md w-full ${type === 0 ? "bg-[#04b20c]" : type === 1 ? "bg-[#eab90f]" : "bg-[#e13f32]"} shadow-lg rounded-lg pointer-events-auto flex ring-1 ring-black ring-opacity-5`}
     >
       <div className="flex-1 w-0 p-4 ">
         <div className="flex items-start">
@@ -37,12 +47,12 @@ const createToast=(title: string, msg: string, type: number)=>{toast.custom((t) 
               xmlns="http://www.w3.org/2000/svg"
               fill="none"
               viewBox="0 0 24 24"
-              stroke-width="1.5"
+              strokeWidth="1.5"
               stroke="currentColor"
               className="h-6 w-6">
               <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
+                strokeLinecap="round"
+                strokeLinejoin="round"
                 d="M6 18L18 6M6 6l12 12" />
             </svg>
           </span>
@@ -50,7 +60,8 @@ const createToast=(title: string, msg: string, type: number)=>{toast.custom((t) 
           
       </div>
     </div>
-  ))};
+  ))
+};
 // let dataJSON: any;
 // let headers = new Headers();
 // headers.append('Access-Control-Allow-Origin', 'http://127.0.0.1:8000');
@@ -65,39 +76,53 @@ const createToast=(title: string, msg: string, type: number)=>{toast.custom((t) 
 //     dataJSON=data;
 //   })
 const fireToast = () => {
-const alertSettings=localStorage.getItem("alertSettings");
-if (alertSettings){
-  for (const alertSetting of JSON.parse(alertSettings)) {
+  const dataJSON: DataJSON = {};
+
+  const alertSettings = typeof window !== 'undefined' ? localStorage.getItem("alertSettings") : null;
+  if (alertSettings) {
+  const parsed = JSON.parse(alertSettings) as unknown;
+  const settings = Array.isArray(parsed) ? (parsed as AlertSetting[]) : [];
+  for (const alertSetting of settings) {
     console.log(alertSetting);
 
-    const value=isNaN(parseFloat(alertSetting.value))?alertSetting.value:parseFloat(alertSetting.value);
-    const para=alertSetting.criterion<2?"delta_"+alertSetting.para:alertSetting.para;
-    if (alertSetting.id=="ALL"){
-      Object.keys(dataJSON).map((id:string)=>
-      {
-        const condition=alertSetting.criterion=='0'?value<=-1*dataJSON[id][para]:
-        alertSetting.criterion=='1'||alertSetting.criterion=='3'?value>=dataJSON[id][para]:
-        alertSetting.criterion=='2'?value<=dataJSON[id][para]:
-        value==dataJSON[id][para];
-        const realValue=alertSetting.criterion=='0'?dataJSON[id][para]*-1:dataJSON[id][para];
+    const value = isNaN(parseFloat(alertSetting.value)) ? alertSetting.value : parseFloat(alertSetting.value);
+    const para = alertSetting.criterion < 2 ? "delta_" + alertSetting.para : alertSetting.para;
+    if (alertSetting.id == "ALL"){
+      Object.keys(dataJSON).forEach((id) => {
+        const datum = dataJSON[id]?.[para];
+        if (datum === undefined) return;
+        const datumNum = typeof datum === 'number' ? datum : parseFloat(String(datum));
+        const valueNum = typeof value === 'number' ? value : parseFloat(String(value));
+        if (Number.isNaN(valueNum) || Number.isNaN(datumNum)) return;
+
+        const condition = alertSetting.criterion === 0 ? valueNum <= -1 * datumNum :
+          alertSetting.criterion === 1 || alertSetting.criterion === 3 ? valueNum >= datumNum :
+          alertSetting.criterion === 2 ? valueNum <= datumNum :
+          valueNum === datumNum;
+
+        const realValue = alertSetting.criterion === 0 ? datumNum * -1 : datumNum;
         if (condition){
           const msg=`${alertSetting.para} of ${id} ${alertSetting.criterion==0?"goes down by":alertSetting.criterion==1?"goes up by":alertSetting.criterion==2?"is smaller than":alertSetting.criterion==3?"is greater than":"is equal to"} ${realValue}`;
           createToast(id,msg,alertSetting.type)
         }
     
 
-      }
-
-      );
+      });
     }
     else{
       const id=alertSetting.id;
-      
-      const condition=alertSetting.criterion=='0'?value>=-1*dataJSON[id][para]:
-        alertSetting.criterion=='1'||alertSetting.criterion=='3'?value>=dataJSON[id][para]:
-        alertSetting.criterion=='2'?value<=dataJSON[id][para]:
-        value==dataJSON[id][para];
-        const realValue=alertSetting.criterion=='0'?dataJSON[id][para]*-1:dataJSON[id][para];
+
+      const datum = dataJSON[id]?.[para];
+      if (datum === undefined) continue;
+      const datumNum = typeof datum === 'number' ? datum : parseFloat(String(datum));
+      const valueNum = typeof value === 'number' ? value : parseFloat(String(value));
+      if (Number.isNaN(valueNum) || Number.isNaN(datumNum)) continue;
+
+      const condition = alertSetting.criterion === 0 ? valueNum >= -1 * datumNum :
+        alertSetting.criterion === 1 || alertSetting.criterion === 3 ? valueNum >= datumNum :
+        alertSetting.criterion === 2 ? valueNum <= datumNum :
+        valueNum === datumNum;
+      const realValue = alertSetting.criterion === 0 ? datumNum * -1 : datumNum;
         
         if (condition){
           const msg=`${alertSetting.para} of ${id} ${alertSetting.criterion==0?"goes down by":alertSetting.criterion==1?"goes up by":alertSetting.criterion==2?"is smaller than":alertSetting.criterion==3?"is greater than":"is equal to"} ${realValue}`;

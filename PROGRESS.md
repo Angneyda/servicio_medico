@@ -1,6 +1,22 @@
 # Registro de Progreso del Proyecto SISMED
 
-**Última Actualización:** 5 de Marzo de 2026
+**Última Actualización:** 6 de Marzo de 2026
+
+## Resumen (06/Mar/2026)
+
+### Qué se hizo hoy
+- Implementación de **RBAC (Roles y Permisos)** end-to-end:
+    - Backend: endpoints para `roles` (Group) y `permissions` (Permission), y endpoint para asignación de roles a usuarios.
+    - Backend: `Me` y detalle/edición de usuarios ahora exponen `groups`/`group_ids` para facilitar la UI.
+    - Frontend: páginas `/roles` y `/permissions`, hooks (`useRoles`, `usePermissions`) y helpers en `AuthContext` (`hasRole`, `hasAnyRole`).
+    - Frontend: modales para editar permisos por rol y asignar roles desde la lista de usuarios.
+- Documentación técnica RBAC creada en `docs/RBAC.md`.
+
+### Qué queda pendiente (prioridad)
+- Pruebas automatizadas (backend RBAC + rutas críticas del backend y frontend).
+- Endurecer el control de acceso: aplicar permisos finos por ruta (DRF `PermissionClasses`/middleware) y eliminar “fallbacks” amplios donde no apliquen.
+- UI: edición individual de permisos (más allá de crear/listar/borrar) y mejor agrupación/visualización por `content_type`.
+- Revisar CORS/orígenes permitidos y endurecer cookies (`Secure`) al pasar a producción con HTTPS.
 
 ## 1. Refactorización de Arquitectura (Backend)
 Se ha completado la migración de un modelo monolítico a una arquitectura modular basada en aplicaciones Django, alineada con esquemas de base de datos PostgreSQL.
@@ -139,12 +155,25 @@ Se ha integrado la plantilla **TailAdmin (Next.js + TypeScript)** y configurado 
 ## 6. Próximos Pasos Pendientes
 - [x] **Listado Usuarios**: Mostrar usuarios con su persona vinculada en la pantalla de Usuarios (completado para administradores; pendiente solo implementar acción de Borrar).
 - [x] **Borrado de usuarios**: Implementar endpoint y lógica para eliminar usuarios/personas desde la API y conectar el botón "Borrar" en el frontend.
-- [ ] **Roles y Permisos (RBAC)**: Crear pantallas para gestión de Roles y Permisos (Groups/Permissions de Django).
+- [ ] **RBAC (Roles y Permisos)**: Completar el enforcement (permisos finos por ruta), pruebas y pulido de UI.
 - [ ] **Consumo de Datos**: Crear páginas específicas ("Staff Médico", "Historias") en el frontend que usen los hooks creados para mostrar datos reales.
 - [ ] **Formularios de Creación**: Implementar formularios para agregar pacientes y citas médicas.
-- [ ] **Roles y Permisos**: Configurar permisos basados en grupos de Django para diferenciar interfaces entre Admin, Doctores y Pacientes.
+- [ ] **Control de UI por rol**: Diferenciar interfaces entre Admin, Doctores y Pacientes (rutas/menús/acciones) según grupos y permisos.
 - [ ] **HTTPS en Producción**: Configurar certificados reales y activar `Secure` en cookies.
 - [ ] **Revisión de CORS**: Ajustar orígenes permitidos según dominio final del frontend.
+
+### [06/Mar/2026] Implementación RBAC (Avance)
+
+- [x] **Backend:** Endpoints añadidos para `roles` (Group) y `permissions` (Permission). Endpoint `POST /api/usuarios/roles/assign/<id>/` para asignar grupos a un `UserPersona`.
+- [x] **Backend:** `GET /api/usuarios/me/` y `GET /api/usuarios/editar/<id>/` ahora incluyen `groups`/`group_ids` para facilitar controles de UI.
+- [x] **Frontend:** `AuthContext` expone `groups`, `hasRole()` y `hasAnyRole()`.
+- [x] **Frontend:** Página `/roles` añadida con creación y edición de roles, edición masiva de permisos por rol (modal), y botón "Editar" por rol.
+- [x] **Frontend:** Modal para asignar roles desde la lista de usuarios (`UsersTable`) disponible en `/users`.
+- [x] **Frontend:** Página `/permissions` añadida para crear permisos y mapear rutas a `codename`, con listado y eliminación de permisos.
+
+**Notas:**
+- La creación de permisos mapea la ruta a un `codename` cuando se proporciona; el backend usa `content_type` por defecto si no se indica.
+- Falta: pruebas automatizadas, control fino de permisos por ruta en middleware/DRF PermissionClasses, y añadir UI para editar permisos individuales (pendiente).
 
 ## 7. Estado de la integración de registro (frontend)
 - [x] **Integrar registro de usuario/persona en el frontend**
@@ -165,6 +194,22 @@ Se ha integrado la plantilla **TailAdmin (Next.js + TypeScript)** y configurado 
 - [x] **Mensaje de éxito al eliminar:**
     - La pantalla `/users` detecta el parámetro `?deleted=1`.
     - Muestra un mensaje verde "Usuario eliminado correctamente." con opción de cerrarlo y auto-ocultado tras unos segundos.
+
+
+### [05/Mar/2026] UI: Avatar por defecto y fallback
+
+- [x] **Cambio aplicado:** Se estandarizó una imagen por defecto para avatares en el frontend y se añadió un fallback en caso de error de carga.
+
+- [x] **Qué se hizo:**
+    - Reemplazadas referencias a `/images/user/*` por la imagen por defecto `/images/cover/man_5615661.png` donde tenía sentido.
+    - Añadido `onError` en elementos `<img>` para restaurar la imagen por defecto si falla la carga.
+
+- [x] **Archivos modificados:**
+    - `frontend-next/src/components/Header/DropdownUser.tsx`
+    - `frontend-next/src/components/Header/DropdownMessage.tsx`
+    - `frontend-next/src/components/Chat/ChatCard.tsx`
+    - `frontend-next/src/app/(dashboard)/profile/page.tsx`
+    - `frontend-next/src/app/(dashboard)/settings/page.tsx`
 
 ---
 *Este archivo sirve como punto de control para el desarrollo del proyecto.*

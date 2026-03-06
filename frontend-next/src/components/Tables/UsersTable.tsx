@@ -4,6 +4,7 @@ import { useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import api from '../../services/api';
 import { UserRow } from '../../hooks/useUsers';
+import AssignRolesModal from '@/components/Modals/AssignRolesModal';
 
 interface UsersTableProps {
   users: UserRow[];
@@ -34,6 +35,19 @@ const UsersTable = ({ users }: UsersTableProps) => {
     }
   };
 
+  const [assignModalOpen, setAssignModalOpen] = useState(false);
+  const [selectedUserForRoles, setSelectedUserForRoles] = useState<number | null>(null);
+
+  const openAssignModal = (id: number) => {
+    setSelectedUserForRoles(id);
+    setAssignModalOpen(true);
+  };
+
+  const onAssigned = () => {
+    // refrescar la lista de usuarios llamando al reload completo
+    window.location.reload();
+  };
+
   const filteredUsers = useMemo(() => {
     const fc = filterCedula.trim().toLowerCase();
     const fn = filterNombre.trim().toLowerCase();
@@ -57,6 +71,7 @@ const UsersTable = ({ users }: UsersTableProps) => {
   const pageItems = filteredUsers.slice((effectivePage - 1) * pageSize, effectivePage * pageSize);
 
   return (
+    <>
     <div className="rounded-sm border-2 border-gray-300 bg-white px-5 pt-6 pb-2.5 shadow-default dark:border-gray-600 dark:bg-boxdark sm:px-7.5 xl:pb-1">
       <h4 className="mb-4 text-center text-xl font-semibold text-black dark:text-white">
          Lista de Usuarios del Sistema
@@ -179,6 +194,13 @@ const UsersTable = ({ users }: UsersTableProps) => {
                 >
                   Editar
                 </button>
+                  <button
+                    type="button"
+                    onClick={() => openAssignModal(user.id)}
+                    className="inline-flex items-center justify-center rounded-md border border-blue-500 px-4 py-1.5 text-sm font-semibold text-blue-600 hover:bg-blue-50"
+                  >
+                    Roles
+                  </button>
                 <button
                   type="button"
                   onClick={() => handleDelete(user.id)}
@@ -231,6 +253,13 @@ const UsersTable = ({ users }: UsersTableProps) => {
         )}
       </div>
     </div>
+    <AssignRolesModal
+      userPersonaId={selectedUserForRoles}
+      open={assignModalOpen}
+      onClose={() => setAssignModalOpen(false)}
+      onAssigned={onAssigned}
+    />
+    </>
   );
 };
 

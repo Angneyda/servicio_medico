@@ -10,7 +10,9 @@ interface User {
   id: number;
   username: string;
   email?: string;
+  avatar?: string;
   // Añade otros campos según tu payload
+  groups?: string[];
 }
 
 
@@ -19,6 +21,8 @@ interface AuthContextType {
   loading: boolean;
   login: (user: User) => void;
   logout: () => void;
+  hasRole: (role: string) => boolean;
+  hasAnyRole: (roles: string[]) => boolean;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -37,7 +41,10 @@ export const AuthProvider = ({children}: {children: ReactNode}) => {
     const loadUser = async () => {
       try {
         const response = await api.get('usuarios/me/');
-        setUser(response.data);
+        // Aseguramos que `groups` sea un array
+        const data = response.data || {};
+        data.groups = Array.isArray(data.groups) ? data.groups : [];
+        setUser(data);
       } catch (error) {
         setUser(null);
       } finally {
@@ -63,7 +70,7 @@ export const AuthProvider = ({children}: {children: ReactNode}) => {
   };
 
   return (
-    <AuthContext.Provider value={{user, loading, login, logout}}>
+    <AuthContext.Provider value={{user, loading, login, logout, hasRole: (r: string) => !!(user && user.groups && user.groups.includes(r)), hasAnyRole: (roles: string[]) => !!(user && user.groups && roles.some((rr) => user.groups!.includes(rr)))}}>
       {!loading && children}
     </AuthContext.Provider>
   );

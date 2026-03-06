@@ -70,7 +70,11 @@ const DropdownMessage = () => {
                   href="/messages"
                 >
                   <div className="h-12.5 w-12.5 rounded-full">
-                    <img src="/images/user/user-02.png" alt="User" />
+                    <img
+                      src={'/images/cover/man_5615661.png'}
+                      alt="User"
+                      onError={(e) => (e.currentTarget.src = '/images/cover/man_5615661.png')}
+                    />
                   </div>
 
                   <div>
@@ -88,7 +92,11 @@ const DropdownMessage = () => {
                   href="/messages"
                 >
                   <div className="h-12.5 w-12.5 rounded-full">
-                    <img src="/images/user/user-01.png" alt="User" />
+                    <img
+                      src={'/images/cover/man_5615661.png'}
+                      alt="User"
+                      onError={(e) => (e.currentTarget.src = '/images/cover/man_5615661.png')}
+                    />
                   </div>
 
                   <div>
@@ -105,8 +113,12 @@ const DropdownMessage = () => {
                   className="flex gap-4.5 border-t border-stroke px-4.5 py-3 hover:bg-gray-2 dark:border-strokedark dark:hover:bg-meta-4"
                   href="/messages"
                 >
-                  <div className="h-12.5 w-12.5 rounded-full">
-                    <img src="/images/user/user-03.png" alt="User" />
+                    <div className="h-12.5 w-12.5 rounded-full">
+                    <img
+                      src={'/images/cover/man_5615661.png'}
+                      alt="User"
+                      onError={(e) => (e.currentTarget.src = '/images/cover/man_5615661.png')}
+                    />
                   </div>
 
                   <div>
@@ -124,7 +136,11 @@ const DropdownMessage = () => {
                   href="/messages"
                 >
                   <div className="h-12.5 w-12.5 rounded-full">
-                    <img src="/images/user/user-04.png" alt="User" />
+                    <img
+                      src={'/images/cover/man_5615661.png'}
+                      alt="User"
+                      onError={(e) => (e.currentTarget.src = '/images/cover/man_5615661.png')}
+                    />
                   </div>
 
                   <div>
@@ -142,7 +158,11 @@ const DropdownMessage = () => {
                   href="/messages"
                 >
                   <div className="h-12.5 w-12.5 rounded-full">
-                    <img src="/images/user/user-02.png" alt="User" />
+                    <img
+                      src={'/images/cover/man_5615661.png'}
+                      alt="User"
+                      onError={(e) => (e.currentTarget.src = '/images/cover/man_5615661.png')}
+                    />
                   </div>
 
                   <div>

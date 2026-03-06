@@ -40,7 +40,7 @@ const MapOne = () => {
     });
 
     return () => {
-      mapOne.destroy();
+      mapOne.destroy?.();
     };
   }, []);
 
