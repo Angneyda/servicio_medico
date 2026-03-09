@@ -1,8 +1,8 @@
 # Registro de Progreso del Proyecto SISMED
 
-**Última Actualización:** 6 de Marzo de 2026
+**Última Actualización:** 9 de Marzo de 2026
 
-## Resumen (06/Mar/2026)
+## Resumen (09/Mar/2026)
 
 ### Qué se hizo hoy
 - Implementación de **RBAC (Roles y Permisos)** end-to-end:
@@ -10,12 +10,13 @@
     - Backend: `Me` y detalle/edición de usuarios ahora exponen `groups`/`group_ids` para facilitar la UI.
     - Frontend: páginas `/roles` y `/permissions`, hooks (`useRoles`, `usePermissions`) y helpers en `AuthContext` (`hasRole`, `hasAnyRole`).
     - Frontend: modales para editar permisos por rol y asignar roles desde la lista de usuarios.
-- Documentación técnica RBAC creada en `docs/RBAC.md`.
+- Documentación técnica RBAC consolidada en `docs/RBAC.md`.
 
 ### Qué queda pendiente (prioridad)
 - Pruebas automatizadas (backend RBAC + rutas críticas del backend y frontend).
 - Endurecer el control de acceso: aplicar permisos finos por ruta (DRF `PermissionClasses`/middleware) y eliminar “fallbacks” amplios donde no apliquen.
 - UI: edición individual de permisos (más allá de crear/listar/borrar) y mejor agrupación/visualización por `content_type`.
+- Docs: corregir detalle de formato Markdown en `docs/RBAC.md` (cierre de bloque ``` al final).
 - Revisar CORS/orígenes permitidos y endurecer cookies (`Secure`) al pasar a producción con HTTPS.
 
 ## 1. Refactorización de Arquitectura (Backend)
